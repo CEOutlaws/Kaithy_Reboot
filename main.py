@@ -12,6 +12,7 @@ def read_input():
 def main():
     # get our data as an array from read_in()
     lines = read_input()
+    print("s")
 
     # create a numpy array
     np_lines = np.array(lines)
