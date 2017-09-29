@@ -153,7 +153,7 @@ class GomokuEnv(gym.Env):
         outfile.write(repr(self.state) + '\n')
         return outfile
 
-    def _step(self, action, opponent_move=None):
+    def _step(self, action, player_policy=None):
         '''
         Args: 
             action: int
@@ -181,7 +181,7 @@ class GomokuEnv(gym.Env):
         # Opponent play
         if not self.state.board.is_terminal():
             self.state, opponent_action = self._exec_opponent_play(
-                self.state, prev_state, action)
+                self.state, prev_state, action, player_policy)
             self.moves.append(self.state.board.last_coord)
             # remove opponent action from action_space
             self.action_space.remove(opponent_action)
@@ -209,11 +209,14 @@ class GomokuEnv(gym.Env):
             reward = 1. if player_wins else -1.
         return self.state.board.encode(), reward, True, {'state': self.state}
 
-    def _exec_opponent_play(self, curr_state, prev_state, prev_action):
+    def _exec_opponent_play(self, curr_state, prev_state, prev_action, player_policy):
         '''There is no resign in gomoku'''
         assert curr_state.color != self.player_color
-        opponent_action = self.opponent_policy(
-            curr_state, prev_state, prev_action)
+        if self.opponent == 'player':
+            opponent_action = player_policy(curr_state)
+        else:
+            opponent_action = self.opponent_policy(
+                curr_state, prev_state, prev_action)
         return curr_state.act(opponent_action), opponent_action
 
     @property
