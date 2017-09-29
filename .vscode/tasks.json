@@ -8,6 +8,12 @@
       "command": "python ./train.py",
       "type": "shell",
       "problemMatcher": []
+    },
+    {
+      "taskName": "main",
+      "command": "printf '\"212002222\"\n' | python ./main.py",
+      "type": "shell",
+      "problemMatcher": []
     }
   ]
 }
