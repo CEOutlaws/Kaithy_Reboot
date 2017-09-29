@@ -10,7 +10,6 @@ import six
 
 from gym_gomoku.envs.util import gomoku_util
 from gym_gomoku.envs.util import make_beginner_policy
-from gym_gomoku.envs.util import make_player_policy
 
 # Rules from Wikipedia: Gomoku is an abstract strategy board game, Gobang or Five in a Row, it is traditionally played with Go pieces (black and white stones) on a go board with 19x19 or (15x15)
 # The winner is the first player to get an unbroken row of five stones horizontally, vertically, or diagonally. (so-calle five-in-a row)
@@ -121,10 +120,11 @@ class GomokuEnv(gym.Env):
         seed2 = seeding.hash_seed(seed1 + 1) % 2**32
         return [seed1, seed2]
 
-    def _reset(self):
+    def _reset(self, custom_opponent_policy=None):
         self.state = GomokuState(
             Board(self.board_size), gomoku_util.BLACK)  # Black Plays First
-        self._reset_opponent(self.state.board)  # (re-initialize) the opponent,
+        # (re-initialize) the opponent,
+        self._reset_opponent(self.state.board, custom_opponent_policy)
         self.moves = []
 
         # Let the opponent play if it's not the agent's turn, there is no resign in Gomoku
@@ -164,9 +164,16 @@ class GomokuEnv(gym.Env):
             info: state dict
         Raise:
             Illegal Move action, basically the position on board is not empty
+
+        Args: 
+            action: function
+        Do: 
+            Reset env and attach defined opponent policy to env
         '''
         assert self.state.color == self.player_color  # it's the player's turn
-
+        if (callable(action)):
+            self._reset(custom_opponent_policy=action)
+            return
         # If already terminal, then don't do anything
         if self.done:
             return self.state.board.encode(), 0., True, {'state': self.state}
@@ -224,11 +231,11 @@ class GomokuEnv(gym.Env):
     def _moves(self):
         return self.moves
 
-    def _reset_opponent(self, board):
+    def _reset_opponent(self, board, custom_opponent_policy=None):
         if self.opponent == 'beginner':
             self.opponent_policy = make_beginner_policy(self.np_random)
         elif self.opponent == 'player':
-            self.opponent_policy = make_player_policy()
+            self.opponent_policy = custom_opponent_policy
         else:
             raise error.Error(
                 'Unrecognized opponent policy {}'.format(self.opponent))

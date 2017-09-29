@@ -23,7 +23,7 @@ register(
 )
 
 register(
-    id='Gomoku9x9-ai-training-camp-v0',
+    id='Gomoku9x9-training-camp-v0',
     entry_point='gym_gomoku.envs:GomokuEnv',
     kwargs={
         'player_color': 'black',

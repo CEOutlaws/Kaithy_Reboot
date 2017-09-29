@@ -335,10 +335,3 @@ def make_beginner_policy(np_random):
         return b.coord_to_action(next_move[0], next_move[1])
 
     return beginner_policy
-
-
-def make_player_policy():
-    def player_policy():
-        '''To Do'''
-        return 0
-    return player_policy
