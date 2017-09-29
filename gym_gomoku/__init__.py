@@ -22,13 +22,13 @@ register(
     nondeterministic=True,
 )
 
-# register(
-#     id='Gomoku9x9-v0-ai-training-camp',
-#     entry_point='gym_gomoku.envs:GomokuEnv',
-#     kwargs={
-#         'player_color': 'black',
-#         'opponent': 'player',  # random policy is the simplest
-#         'board_size': 9,
-#     },
-#     nondeterministic=True,
-# )
+register(
+    id='Gomoku9x9-ai-training-camp-v0',
+    entry_point='gym_gomoku.envs:GomokuEnv',
+    kwargs={
+        'player_color': 'black',
+        'opponent': 'player',  # random policy is the simplest
+        'board_size': 9,
+    },
+    nondeterministic=True,
+)
