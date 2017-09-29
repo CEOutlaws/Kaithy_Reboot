@@ -19,7 +19,6 @@ def main():
     empty_square_count = -1
     for square_idx in range(0, len(my_input)):
         empty_square_count += (my_input[square_idx] == empty)
-        print(empty_square_count)
         if empty_square_count == empty_move_idx:
             my_output = square_idx
             break
