@@ -50,6 +50,13 @@ class GomokuState(object):
 
 
 class DiscreteWrapper(spaces.Discrete):
+    '''
+    Attribute:
+        valid_spaces: 
+            Valid action space. 
+            Valid action is legal move action, basically the position on board is not empty
+    '''
+
     def __init__(self, n):
         self.n = n
         self.valid_spaces = list(range(n))
@@ -156,10 +163,20 @@ class GomokuEnv(gym.Env):
     def _step(self, action):
         '''
         Args: 
-            action: int
+            action: 
+                value: 0 -> num_actions
+                type: int
         Return: 
-            observation: board encoding, 
-            reward: reward of the game, 
+            observation: 
+                board encoding
+                type: 2D array, black X -> 1, white O -> 2
+            reward: 
+                reward of the game, 
+                type: float
+                value: 
+                    1: win
+                    -1: lose
+                    0: draw or nothing
             done: boolean, 
             info: state dict
         Raise:
