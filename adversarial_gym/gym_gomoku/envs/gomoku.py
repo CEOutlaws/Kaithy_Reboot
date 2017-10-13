@@ -8,8 +8,8 @@ import sys
 import os
 import six
 
-from gym_gomoku.envs.util import gomoku_util
-from gym_gomoku.envs.util import make_beginner_policy
+from .util import gomoku_util
+from .util import make_beginner_policy
 
 # Rules from Wikipedia: Gomoku is an abstract strategy board game, Gobang or Five in a Row, it is traditionally played with Go pieces (black and white stones) on a go board with 19x19 or (15x15)
 # The winner is the first player to get an unbroken row of five stones horizontally, vertically, or diagonally. (so-calle five-in-a row)
