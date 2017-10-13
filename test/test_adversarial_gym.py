@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 import adversarial_gym as gym
 import numpy as np
 

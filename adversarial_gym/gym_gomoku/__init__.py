@@ -2,7 +2,7 @@ from gym.envs.registration import register
 
 register(
     id='Gomoku19x19-v0',
-    entry_point='gym_gomoku.envs:GomokuEnv',
+    entry_point='adversarial_gym.gym_gomoku.envs:GomokuEnv',
     kwargs={
         'player_color': 'black',
         'opponent': 'beginner',
@@ -13,7 +13,7 @@ register(
 
 register(
     id='Gomoku9x9-v0',
-    entry_point='gym_gomoku.envs:GomokuEnv',
+    entry_point='adversarial_gym.gym_gomoku.envs:GomokuEnv',
     kwargs={
         'player_color': 'black',
         'opponent': 'beginner',  # random policy is the simplest
@@ -24,7 +24,7 @@ register(
 
 register(
     id='Gomoku9x9-training-camp-v0',
-    entry_point='gym_gomoku.envs:GomokuEnv',
+    entry_point='adversarial_gym.gym_gomoku.envs:GomokuEnv',
     kwargs={
         'player_color': 'black',
         'opponent': 'player',
