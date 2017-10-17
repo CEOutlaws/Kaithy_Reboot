@@ -29,15 +29,15 @@ class Qnetwork():
         # It then resizes it and processes it through four convolutional layers.
         self.scalarInput = tf.placeholder(
             shape=[None, 81], dtype=tf.float32)
-        self.imageIn = tf.reshape(self.scalarInput, shape=[-1, 3, 3, 2])
+        self.imageIn = tf.reshape(self.scalarInput, shape=[-1, 9, 9, 2])
         self.conv1 = slim.conv2d(
-            inputs=self.imageIn, num_outputs=3, kernel_size=[3, 3], stride=[1, 1], padding='VALID', biases_initializer=None)
+            inputs=self.imageIn, num_outputs=3, kernel_size=[2, 2], stride=[1, 1], padding='VALID', biases_initializer=None)
         self.conv2 = slim.conv2d(
             inputs=self.conv1, num_outputs=3, kernel_size=[2, 2], stride=[1, 1], padding='VALID', biases_initializer=None)
         self.conv3 = slim.conv2d(
             inputs=self.conv2, num_outputs=3, kernel_size=[1, 1], stride=[1, 1], padding='VALID', biases_initializer=None)
         self.conv4 = slim.conv2d(
-            inputs=self.conv3, num_outputs=3, kernel_size=[3, 3], stride=[1, 1], padding='VALID', biases_initializer=None)
+            inputs=self.conv3, num_outputs=3, kernel_size=[4, 4], stride=[1, 1], padding='VALID', biases_initializer=None)
 
         # We take the output from the final convolutional layer and split it into separate advantage and value streams.
         self.streamAC, self.streamVC = tf.split(self.conv4, 2, 2)
