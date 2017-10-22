@@ -1,8 +1,9 @@
 import sys
 sys.path.append('..')
 
-import adversarial_gym as gym
+import numpy as np
 
+import adversarial_gym as gym
 from baselines import deepq
 
 
@@ -28,8 +29,8 @@ def main():
         print_freq=10,
         param_noise=True
     )
-    print("Saving model to mountaincar_model.pkl")
-    act.save("mountaincar_model.pkl")
+    print("Saving model to kaithy_model.pkl")
+    act.save("kaithy_model.pkl")
 
 
 if __name__ == '__main__':
