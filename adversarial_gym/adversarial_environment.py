@@ -28,3 +28,7 @@ class AdversarialEnv:
     @property
     def action_space(self):
         return self.env.action_space
+
+    @property
+    def observation_space(self):
+        return self.env.observation_space
