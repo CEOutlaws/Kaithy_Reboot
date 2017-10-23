@@ -4,6 +4,7 @@ import dill
 import tempfile
 import tensorflow as tf
 import zipfile
+import time
 
 import baselines.common.tf_util as U
 
@@ -48,7 +49,8 @@ class ActWrapper(object):
                     for fname in files:
                         file_path = os.path.join(root, fname)
                         if file_path != arc_name:
-                            zipf.write(file_path, os.path.relpath(file_path, td))
+                            zipf.write(
+                                file_path, os.path.relpath(file_path, td))
             with open(arc_name, "rb") as f:
                 model_data = f.read()
         with open(path, "wb") as f:
@@ -188,7 +190,8 @@ def learn(env,
 
     # Create the replay buffer
     if prioritized_replay:
-        replay_buffer = PrioritizedReplayBuffer(buffer_size, alpha=prioritized_replay_alpha)
+        replay_buffer = PrioritizedReplayBuffer(
+            buffer_size, alpha=prioritized_replay_alpha)
         if prioritized_replay_beta_iters is None:
             prioritized_replay_beta_iters = max_timesteps
         beta_schedule = LinearSchedule(prioritized_replay_beta_iters,
@@ -210,6 +213,8 @@ def learn(env,
     saved_mean_reward = None
     obs = env.reset()
     reset = True
+    start_time = time.time()
+    start_clock = time.clock()
     with tempfile.TemporaryDirectory() as td:
         model_saved = False
         model_file = os.path.join(td, "model")
@@ -228,11 +233,14 @@ def learn(env,
                 # policy is comparable to eps-greedy exploration with eps = exploration.value(t).
                 # See Appendix C.1 in Parameter Space Noise for Exploration, Plappert et al., 2017
                 # for detailed explanation.
-                update_param_noise_threshold = -np.log(1. - exploration.value(t) + exploration.value(t) / float(env.action_space.n))
+                update_param_noise_threshold = - \
+                    np.log(1. - exploration.value(t) +
+                           exploration.value(t) / float(env.action_space.n))
                 kwargs['reset'] = reset
                 kwargs['update_param_noise_threshold'] = update_param_noise_threshold
                 kwargs['update_param_noise_scale'] = True
-            action = act(np.array(obs)[None], update_eps=update_eps, **kwargs)[0]
+            action = act(np.array(obs)[None],
+                         update_eps=update_eps, **kwargs)[0]
             reset = False
             new_obs, rew, done, _ = env.step(action)
             # Store transition in the replay buffer.
@@ -248,15 +256,20 @@ def learn(env,
             if t > learning_starts and t % train_freq == 0:
                 # Minimize the error in Bellman's equation on a batch sampled from replay buffer.
                 if prioritized_replay:
-                    experience = replay_buffer.sample(batch_size, beta=beta_schedule.value(t))
-                    (obses_t, actions, rewards, obses_tp1, dones, weights, batch_idxes) = experience
+                    experience = replay_buffer.sample(
+                        batch_size, beta=beta_schedule.value(t))
+                    (obses_t, actions, rewards, obses_tp1,
+                     dones, weights, batch_idxes) = experience
                 else:
-                    obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(batch_size)
+                    obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(
+                        batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
-                td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
+                td_errors = train(obses_t, actions, rewards,
+                                  obses_tp1, dones, weights)
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
-                    replay_buffer.update_priorities(batch_idxes, new_priorities)
+                    replay_buffer.update_priorities(
+                        batch_idxes, new_priorities)
 
             if t > learning_starts and t % target_network_update_freq == 0:
                 # Update target network periodically.
@@ -265,10 +278,16 @@ def learn(env,
             mean_100ep_reward = round(np.mean(episode_rewards[-101:-1]), 1)
             num_episodes = len(episode_rewards)
             if done and print_freq is not None and len(episode_rewards) % print_freq == 0:
+                logger.record_tabular(
+                    "Execution time spent training", time.time() - start_time)
+                logger.record_tabular(
+                    "Wall-clock time spent training", time.clock() - start_clock)
                 logger.record_tabular("steps", t)
                 logger.record_tabular("episodes", num_episodes)
-                logger.record_tabular("mean 100 episode reward", mean_100ep_reward)
-                logger.record_tabular("% time spent exploring", int(100 * exploration.value(t)))
+                logger.record_tabular(
+                    "mean 100 episode reward", mean_100ep_reward)
+                logger.record_tabular(
+                    "% time spent exploring", int(100 * exploration.value(t)))
                 logger.dump_tabular()
 
             if (checkpoint_freq is not None and t > learning_starts and
@@ -282,7 +301,8 @@ def learn(env,
                     saved_mean_reward = mean_100ep_reward
         if model_saved:
             if print_freq is not None:
-                logger.log("Restored model with mean reward: {}".format(saved_mean_reward))
+                logger.log("Restored model with mean reward: {}".format(
+                    saved_mean_reward))
             U.load_state(model_file)
 
     return ActWrapper(act, act_params)
