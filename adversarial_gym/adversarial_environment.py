@@ -9,7 +9,6 @@ from . import gym_gomoku
 class AdversarialEnv:
     def __init__(self, environment_id, opponent_policy):
         self.env = gym.make(environment_id)
-        print('a')
         self.__opponent_policy = opponent_policy
 
         self.reset()
