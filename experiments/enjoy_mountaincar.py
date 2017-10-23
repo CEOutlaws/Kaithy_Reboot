@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 import gym
 
 from baselines import deepq

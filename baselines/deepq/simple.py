@@ -279,9 +279,9 @@ def learn(env,
             num_episodes = len(episode_rewards)
             if done and print_freq is not None and len(episode_rewards) % print_freq == 0:
                 logger.record_tabular(
-                    "Execution time spent training", time.time() - start_time)
+                    "Execution time so far", time.time() - start_time)
                 logger.record_tabular(
-                    "Wall-clock time spent training", time.clock() - start_clock)
+                    "Wall-clock time so far", time.clock() - start_clock)
                 logger.record_tabular("steps", t)
                 logger.record_tabular("episodes", num_episodes)
                 logger.record_tabular(
