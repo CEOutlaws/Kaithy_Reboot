@@ -158,9 +158,6 @@ def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None):
             tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=tf.int64)
         chose_random = tf.random_uniform(
             tf.stack([batch_size]), minval=0, maxval=1, dtype=tf.float32) < eps
-        print(chose_random)
-        print(random_actions)
-        print(deterministic_actions)
         stochastic_actions = tf.where(
             chose_random, random_actions, deterministic_actions)
 
@@ -288,6 +285,9 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
             tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=tf.int64)
         chose_random = tf.random_uniform(
             tf.stack([batch_size]), minval=0, maxval=1, dtype=tf.float32) < eps
+        print(chose_random)
+        print(random_actions)
+        print(deterministic_actions)
         stochastic_actions = tf.where(
             chose_random, random_actions, deterministic_actions)
 
