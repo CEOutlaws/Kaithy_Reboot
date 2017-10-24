@@ -171,7 +171,10 @@ def learn(env,
     sess.__enter__()
 
     def make_obs_ph(name):
-        return U.BatchInput(env.observation_space.shape, name=name)
+        flattened_env_shape = 1
+        for dim_size in env.observation_space.shape:
+            flattened_env_shape *= dim_size
+        return U.BatchInput((flattened_env_shape,), name=name)
 
     act, train, update_target, debug = deepq.build_train(
         make_obs_ph=make_obs_ph,
@@ -239,7 +242,7 @@ def learn(env,
                 kwargs['reset'] = reset
                 kwargs['update_param_noise_threshold'] = update_param_noise_threshold
                 kwargs['update_param_noise_scale'] = True
-            action = act(np.array(obs)[None],
+            action = act(np.array(obs).flatten()[None],
                          update_eps=update_eps, **kwargs)[0]
             reset = False
             new_obs, rew, done, _ = env.step(action)
