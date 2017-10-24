@@ -190,7 +190,7 @@ class GomokuEnv(gym.Env):
         assert self.state.color == self.player_color  # it's the player's turn
         if (callable(action)):
             self._reset(custom_opponent_policy=action)
-            return
+            return self.state.board.encode()
         # If already terminal, then don't do anything
         if self.done:
             return self.state.board.encode(), 0., True, {'state': self.state}
