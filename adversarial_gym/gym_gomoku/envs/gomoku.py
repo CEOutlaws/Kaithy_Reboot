@@ -378,5 +378,5 @@ class Board(object):
         '''Return: np array
             np.array(board_size, board_size): state observation of the board
         '''
-        img = np.array(self.board_state)  # shape [board_size, board_size]
-        return img
+        # shape [board_size, board_size]
+        return self.board_state
