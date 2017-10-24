@@ -21,6 +21,7 @@ def main():
     act = deepq.learn(
         env,
         q_func=model,
+        flatten_obs=True,
         lr=1e-3,
         max_timesteps=100000,
         buffer_size=50000,
