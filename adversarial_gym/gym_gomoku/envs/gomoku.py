@@ -376,6 +376,6 @@ class Board(object):
 
     def encode(self):
         '''Return: np array
-            np.array(board_size, board_size): state observation of the board
+            np.array(board_size, board_size, 1): state observation of the board
         '''
-        return self.board_state
+        return np.stack((self.board_state,), axis=-1)

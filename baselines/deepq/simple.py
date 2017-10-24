@@ -247,7 +247,6 @@ def learn(env,
                 kwargs['update_param_noise_scale'] = True
             if flatten_obs:
                 obs = obs.flatten()
-            obs = np.stack((obs,) * 1, axis=-1)
             action = act(np.array(obs)[None],
                          update_eps=update_eps, **kwargs)[0]
             reset = False
