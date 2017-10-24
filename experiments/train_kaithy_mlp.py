@@ -29,8 +29,8 @@ def main():
         print_freq=10,
         param_noise=True
     )
-    print("Saving model to kaithy_model.pkl")
-    act.save("kaithy_model.pkl")
+    print("Saving model to kaithy_mlp_model.pkl")
+    act.save("kaithy_mlp_model.pkl")
 
 
 if __name__ == '__main__':
