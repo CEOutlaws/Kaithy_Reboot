@@ -44,6 +44,8 @@ class Qnetwork():
         self.streamA = slim.flatten(self.streamAC)
         self.streamV = slim.flatten(self.streamVC)
         xavier_init = tf.contrib.layers.xavier_initializer()
+        print(env.action_space.n)
+        input("wait")
         self.AW = tf.Variable(xavier_init([h_size // 2, env.action_space.n]))
         self.VW = tf.Variable(xavier_init([h_size // 2, 1]))
         self.Advantage = tf.matmul(self.streamA, self.AW)
