@@ -106,9 +106,9 @@ class GomokuEnv(gym.Env):
         self.opponent = opponent
 
         # Observation space on board
-        shape = (self.board_size, self.board_size)  # board_size * board_size
+        # board_size * board_size
+        shape = (self.board_size, self.board_size, 1)
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
-
         # One action for each board position
         self.action_space = DiscreteWrapper(self.board_size**2)
 
