@@ -78,6 +78,7 @@ def load(path, num_cpu=16):
 
 def learn(env,
           q_func,
+          flatten_obs=False,
           lr=5e-4,
           max_timesteps=100000,
           buffer_size=50000,
@@ -171,10 +172,12 @@ def learn(env,
     sess.__enter__()
 
     def make_obs_ph(name):
-        flattened_env_shape = 1
-        for dim_size in env.observation_space.shape:
-            flattened_env_shape *= dim_size
-        return U.BatchInput((flattened_env_shape,), name=name)
+        if flatten_obs:
+            flattened_env_shape = 1
+            for dim_size in env.observation_space.shape:
+                flattened_env_shape *= dim_size
+            return U.BatchInput((flattened_env_shape,), name=name)
+        return U.BatchInput(env.observation_space.shape)
 
     act, train, update_target, debug = deepq.build_train(
         make_obs_ph=make_obs_ph,
@@ -242,7 +245,9 @@ def learn(env,
                 kwargs['reset'] = reset
                 kwargs['update_param_noise_threshold'] = update_param_noise_threshold
                 kwargs['update_param_noise_scale'] = True
-            action = act(np.array(obs).flatten()[None],
+            if flatten_obs:
+                obs = obs.flatten()
+            action = act(np.array(obs)[None],
                          update_eps=update_eps, **kwargs)[0]
             reset = False
             new_obs, rew, done, _ = env.step(action)

@@ -106,9 +106,9 @@ class GomokuEnv(gym.Env):
         self.opponent = opponent
 
         # Observation space on board
-        shape = (self.board_size, self.board_size)  # board_size * board_size
+        # board_size * board_size
+        shape = (self.board_size, self.board_size, 1)
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
-
         # One action for each board position
         self.action_space = DiscreteWrapper(self.board_size**2)
 
@@ -266,8 +266,8 @@ class Board(object):
     def __init__(self, board_size):
         self.size = board_size
         # initialize board states to empty
-        self.board_state = [[gomoku_util.color_dict['empty']]
-                            * board_size for i in range(board_size)]
+        self.board_state = np.array([[gomoku_util.color_dict['empty']]
+                                     * board_size for i in range(board_size)])
         self.move = 0                 # how many move has been made
         self.last_coord = (-1, -1)     # last action coord
         self.last_action = None       # last action made
@@ -321,22 +321,18 @@ class Board(object):
             Args: input action, current player color
             Return: new copy of board object
         '''
-        b = Board(self.size)
-        b.copy(self.board_state)  # create a board copy of current board_state
-        b.move = self.move
-
         coord = self.action_to_coord(action)
         # check if it's legal move
         # the action coordinate is not empty
-        if (b.board_state[coord[0]][coord[1]] != 0):
+        if (self.board_state[coord[0]][coord[1]] != 0):
             raise error.Error("Action is illegal, position [%d, %d] on board is not empty" % (
                 (coord[0] + 1), (coord[1] + 1)))
 
-        b.board_state[coord[0]][coord[1]] = gomoku_util.color_dict[color]
-        b.move += 1  # move counter add 1
-        b.last_coord = coord  # save last coordinate
-        b.last_action = action
-        return b
+        self.board_state[coord[0]][coord[1]] = gomoku_util.color_dict[color]
+        self.move += 1  # move counter add 1
+        self.last_coord = coord  # save last coordinate
+        self.last_action = action
+        return self
 
     def is_terminal(self):
         exist, color = gomoku_util.check_five_in_row(self.board_state)
@@ -380,7 +376,6 @@ class Board(object):
 
     def encode(self):
         '''Return: np array
-            np.array(board_size, board_size): state observation of the board
+            np.array(board_size, board_size, 1): state observation of the board
         '''
-        img = np.array(self.board_state)  # shape [board_size, board_size]
-        return img
+        return np.stack((self.board_state,), axis=-1)
