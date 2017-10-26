@@ -274,8 +274,6 @@ def learn(env,
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(
                         batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
-                print(obses_t.shape)
-                print(obses_tp1.shape)
                 td_errors = train(obses_t, actions, rewards,
                                   obses_tp1, dones, weights)
                 if prioritized_replay:
