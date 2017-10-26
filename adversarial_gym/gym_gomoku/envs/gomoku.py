@@ -293,8 +293,7 @@ class Board(object):
         return a
 
     def action_to_coord(self, a):
-        coord = (a // self.size, a % self.size)
-        return coord
+        return (a // self.size, a % self.size)
 
     def get_legal_move(self):
         ''' Get all the next legal move, namely empty space that you can place your 'color' stone
