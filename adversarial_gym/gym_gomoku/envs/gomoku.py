@@ -323,11 +323,17 @@ class Board(object):
         '''
         coord = self.action_to_coord(action)
 
-        self.board_state[coord[0]][coord[1]] = gomoku_util.color_dict[color]
-        self.move += 1  # move counter add 1
-        self.last_coord = coord  # save last coordinate
-        self.last_action = action
-        return self
+        # Duplicate board instance
+        result_board = Board(self.size)
+        result_board.board_state = np.copy(self.board_state)
+        result_board.move = self.move
+
+        result_board.board_state[coord[0]][coord[1]
+                                           ] = gomoku_util.color_dict[color]
+        result_board.move += 1  # move counter add 1
+        result_board.last_coord = coord  # save last coordinate
+        result_board.last_action = action
+        return result_board
 
     def is_terminal(self):
         exist, color = gomoku_util.check_five_in_row(self.board_state)
