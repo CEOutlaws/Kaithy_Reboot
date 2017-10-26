@@ -195,6 +195,11 @@ class GomokuEnv(gym.Env):
         if self.done:
             return self.state.board.encode(), 0., True, {'state': self.state}
 
+        # check if it's legal move
+        # the action coordinate is not empty
+        if (self.state.board.board_state[action[0]][action[1]] != 0):
+            return self.state.board.encode(), -1., True, {'state': self.state}
+
         # Player play
         prev_state = self.state
         self.state = self.state.act(action)
@@ -204,8 +209,14 @@ class GomokuEnv(gym.Env):
 
         # Opponent play
         if not self.state.board.is_terminal():
-            self.state, opponent_action = self._exec_opponent_play(
+            opponent_action = self._exec_opponent_play(
                 self.state, prev_state, action)
+            # check if it's legal move
+            # the action coordinate is not empty
+            if (self.state.board.board_state[opponent_action[0]][opponent_action[1]] != 0):
+                return self.state.board.encode(), 0., True, {'state': self.state}
+
+            self.state = self.state.act(opponent_action)
             self.moves.append(self.state.board.last_coord)
             # remove opponent action from action_space
             self.action_space.remove(opponent_action)
@@ -236,9 +247,8 @@ class GomokuEnv(gym.Env):
     def _exec_opponent_play(self, curr_state, prev_state, prev_action):
         '''There is no resign in gomoku'''
         assert curr_state.color != self.player_color
-        opponent_action = self.opponent_policy(
+        return self.opponent_policy(
             curr_state, prev_state, prev_action)
-        return curr_state.act(opponent_action), opponent_action
 
     @property
     def _state(self):
@@ -322,11 +332,6 @@ class Board(object):
             Return: new copy of board object
         '''
         coord = self.action_to_coord(action)
-        # check if it's legal move
-        # the action coordinate is not empty
-        if (self.board_state[coord[0]][coord[1]] != 0):
-            raise error.Error("Action is illegal, position [%d, %d] on board is not empty" % (
-                (coord[0] + 1), (coord[1] + 1)))
 
         self.board_state[coord[0]][coord[1]] = gomoku_util.color_dict[color]
         self.move += 1  # move counter add 1
