@@ -289,7 +289,7 @@ class Board(object):
     def coord_to_action(self, i, j):
         ''' convert coordinate i, j to action a in [0, board_size**2)
         '''
-        return = i * self.size + j  # action index
+        return i * self.size + j  # action index
 
     def action_to_coord(self, a):
         return (a // self.size, a % self.size)
