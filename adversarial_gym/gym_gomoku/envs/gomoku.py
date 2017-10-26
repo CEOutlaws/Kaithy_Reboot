@@ -201,7 +201,7 @@ class GomokuEnv(gym.Env):
 
         # check if it's legal move
         # the action coordinate is not empty
-        if (self.state.board.board_state[action[0]][action[1]] != 0):
+        if action not in self.action_space.valid_spaces:
             return self.state.board.encode(), -1., True, {'state': self.state}
 
         # Player play
@@ -217,7 +217,7 @@ class GomokuEnv(gym.Env):
                 self.state, prev_state, action)
             # check if it's legal move
             # the action coordinate is not empty
-            if (self.state.board.board_state[opponent_action[0]][opponent_action[1]] != 0):
+            if opponent_action not in self.action_space.valid_spaces:
                 return self.state.board.encode(), 0., True, {'state': self.state}
 
             self.state = self.state.act(opponent_action)
