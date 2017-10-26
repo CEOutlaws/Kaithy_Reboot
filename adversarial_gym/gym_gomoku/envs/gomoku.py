@@ -316,18 +316,6 @@ class Board(object):
                     legal_action.append(self.coord_to_action(i, j))
         return legal_action
 
-    def copy(self, board_state):
-        '''update board_state of current board values from input 2D list
-        '''
-        input_size_x = len(board_state)
-        input_size_y = len(board_state[0])
-        assert input_size_x == input_size_y, 'input board_state two axises size mismatch'
-        assert len(
-            self.board_state) == input_size_x, 'input board_state size mismatch'
-        for i in range(self.size):
-            for j in range(self.size):
-                self.board_state[i][j] = board_state[i][j]
-
     def play(self, action, color):
         '''
             Args: input action, current player color
