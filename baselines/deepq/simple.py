@@ -251,6 +251,8 @@ def learn(env,
                          update_eps=update_eps, **kwargs)[0]
             reset = False
             new_obs, rew, done, _ = env.step(action)
+            if flatten_obs:
+                new_obs = new_obs.flatten()
             # Store transition in the replay buffer.
             replay_buffer.add(obs, action, rew, new_obs, float(done))
             obs = new_obs
@@ -272,6 +274,8 @@ def learn(env,
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(
                         batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
+                print(obses_t.shape)
+                print(obses_tp1.shape)
                 td_errors = train(obses_t, actions, rewards,
                                   obses_tp1, dones, weights)
                 if prioritized_replay:
