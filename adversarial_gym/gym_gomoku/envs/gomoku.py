@@ -175,9 +175,13 @@ class GomokuEnv(gym.Env):
                 type: float
                 value: 
                     1: win
-                    -1: lose
-                    0: draw or nothing
-            done: boolean, 
+                    -1: lose or player's action is invalid
+                    0: draw or nothing or opponent's action is invalid
+            done: 
+                type: boolean
+                value:
+                    True: game is finish or invalid move is taken
+                    False: vice versa
             info: state dict
         Raise:
             Illegal Move action, basically the position on board is not empty
