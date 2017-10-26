@@ -251,6 +251,8 @@ def learn(env,
                          update_eps=update_eps, **kwargs)[0]
             reset = False
             new_obs, rew, done, _ = env.step(action)
+            if flatten_obs:
+                new_obs = new_obs.flatten()
             # Store transition in the replay buffer.
             replay_buffer.add(obs, action, rew, new_obs, float(done))
             obs = new_obs

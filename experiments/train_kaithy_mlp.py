@@ -24,7 +24,7 @@ def main():
         flatten_obs=True,
         lr=1e-3,
         max_timesteps=100000,
-        buffer_size=50000,
+        buffer_size=1000,
         exploration_fraction=0.1,
         exploration_final_eps=0.1,
         print_freq=10,
