@@ -10,6 +10,7 @@ def opponent_policy(curr_state, prev_state, prev_action):
     '''
     Define policy for opponent here
     '''
+    print(curr_state)
     return gym.gym_gomoku.envs.util.make_beginner_policy(np.random)(curr_state, prev_state, prev_action)
 
 
@@ -21,7 +22,7 @@ def main():
     env.reset()
     action = env.action_space.sample()  # sample without replacement
     observation, reward, done, info = env.step(action)
-    util.invert_board(observation)
+    # util.invert_board(observation)
 
 
 if __name__ == "__main__":

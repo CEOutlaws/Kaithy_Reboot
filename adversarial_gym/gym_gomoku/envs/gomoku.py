@@ -101,7 +101,7 @@ class GomokuEnv(gym.Env):
 
         self._seed()
 
-        # opponent
+        # opponentopponent_policy
         self.opponent_policy = None
         self.opponent = opponent
 
