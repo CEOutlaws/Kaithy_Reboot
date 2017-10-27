@@ -214,7 +214,7 @@ def learn(env,
         action = act(opponent_obs[None])[0]
 
         return action
-    env.set_opponent_policy(opponent_policy)
+    env.opponent_policy = opponent_policy
     act_params = {
         'make_obs_ph': make_obs_ph,
         'q_func': q_func,
