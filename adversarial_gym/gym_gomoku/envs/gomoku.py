@@ -191,10 +191,12 @@ class GomokuEnv(gym.Env):
         Do: 
             Reset env and attach defined opponent policy to env
         '''
-        assert self.state.color == self.player_color  # it's the player's turn
+        # A trick to use step as general method of enviroment class
         if (callable(action)):
             self._reset(custom_opponent_policy=action)
             return self.state.board.encode()
+
+        assert self.state.color == self.player_color  # it's the player's turn
         # If already terminal, then don't do anything
         if self.done:
             return self.state.board.encode(), 0., True, {'state': self.state}
