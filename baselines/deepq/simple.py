@@ -103,6 +103,7 @@ def load(path, num_cpu=16):
 
 def learn(env,
           q_func,
+          double_q=False,
           flatten_obs=False,
           lr=5e-4,
           max_timesteps=100000,
@@ -140,6 +141,10 @@ def learn(env,
             reuse: bool
                 should be passed to outer variable scope
         and returns a tensor of shape (batch_size, num_actions) with values of every action.
+    double_q: bool
+        if True use target Q to evaluate Q_tp1 (NOTICE: q_func is still used to select a_tp1)
+    flatten_obs: bool
+        if True flatten obs explicitly
     lr: float
         learning rate for adam optimizer
     max_timesteps: int
@@ -211,6 +216,7 @@ def learn(env,
         optimizer=tf.train.AdamOptimizer(learning_rate=lr),
         gamma=gamma,
         grad_norm_clipping=10,
+        double_q=double_q,
         param_noise=param_noise
     )
 
