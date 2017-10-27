@@ -5,6 +5,7 @@ import tempfile
 import tensorflow as tf
 import zipfile
 import time
+import copy
 
 import baselines.common.tf_util as U
 
@@ -12,31 +13,6 @@ from baselines import logger
 from baselines.common.schedules import LinearSchedule
 from baselines import deepq
 from baselines.deepq.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
-
-
-def action_agent(obs):
-    action = act(obs[None])[0]
-    return action
-
-
-def opponent_policy(curr_state, prev_state, prev_action):
-    '''
-    Define policy for opponent here
-    '''
-    # a = curr_state.board.board_state
-    # print(a)
-    for x_pixel in range(0, curr_state.board.board_state.shape[0]):
-        for y_pixel in range(0, curr_state.board.board_state.shape[1]):
-            # print(curr_state.board.board_state[x_pixel][y_pixel])
-            # status_in_pixel = curr_state.board.board_state[x_pixel][y_pixel]
-            if (curr_state.board.board_state[x_pixel][y_pixel] == 1):
-                curr_state.board.board_state[x_pixel][y_pixel] = 2
-            elif curr_state.board.board_state[x_pixel][y_pixel] == 2:
-                curr_state.board.board_state[x_pixel][y_pixel] = 1
-    # print(a)
-    action = act(obs[None])[0]
-    return action
-    # return gym.gym_gomoku.envs.util.make_beginner_policy(np.random)(curr_state, prev_state, prev_action)
 
 
 class ActWrapper(object):
@@ -224,25 +200,19 @@ def learn(env,
         '''
         Define policy for opponent here
         '''
-        # Ievert board
-        for x_pixel in range(0, curr_state.board.board_state.shape[0]):
-            for y_pixel in range(0, curr_state.board.board_state.shape[1]):
-                if (curr_state.board.board_state[x_pixel][y_pixel] == 1):
-                    curr_state.board.board_state[x_pixel][y_pixel] = 2
-                elif curr_state.board.board_state[x_pixel][y_pixel] == 2:
-                    curr_state.board.board_state[x_pixel][y_pixel] = 1
+        board_invert = copy.deepcopy(curr_state)
+        # Invert board
+        for x_pixel in range(0, board_invert.board.board_state.shape[0]):
+            for y_pixel in range(0, board_invert.board.board_state.shape[1]):
+                if (board_invert.board.board_state[x_pixel][y_pixel] == 1):
+                    board_invert.board.board_state[x_pixel][y_pixel] = 2
+                elif board_invert.board.board_state[x_pixel][y_pixel] == 2:
+                    board_invert.board.board_state[x_pixel][y_pixel] = 1
         # Build Action for opponent
-        opponent_obs = curr_state.board.encode()
+        opponent_obs = board_invert.board.encode()
         opponent_obs = opponent_obs.flatten()
         action = act(opponent_obs[None])[0]
 
-        # Revert board to Kaithy play
-        for x_pixel in range(0, curr_state.board.board_state.shape[0]):
-            for y_pixel in range(0, curr_state.board.board_state.shape[1]):
-                if (curr_state.board.board_state[x_pixel][y_pixel] == 1):
-                    curr_state.board.board_state[x_pixel][y_pixel] = 2
-                elif curr_state.board.board_state[x_pixel][y_pixel] == 2:
-                    curr_state.board.board_state[x_pixel][y_pixel] = 1
         return action
     env.set_opponent_policy(opponent_policy)
     act_params = {

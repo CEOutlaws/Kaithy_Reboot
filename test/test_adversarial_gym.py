@@ -3,6 +3,7 @@ sys.path.append('..')
 
 import adversarial_gym as gym
 import numpy as np
+import copy
 
 
 def opponent_policy(curr_state, prev_state, prev_action):
@@ -11,6 +12,9 @@ def opponent_policy(curr_state, prev_state, prev_action):
     '''
     # a = curr_state.board.board_state
     # print(a)
+    board = copy.deepcopy(curr_state)
+    print(board.board, curr_state.board)
+    input("wait")
     for x_pixel in range(0, curr_state.board.board_state.shape[0]):
         for y_pixel in range(0, curr_state.board.board_state.shape[1]):
             # print(curr_state.board.board_state[x_pixel][y_pixel])
