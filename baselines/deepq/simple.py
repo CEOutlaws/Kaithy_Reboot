@@ -34,7 +34,8 @@ def opponent_policy(curr_state, prev_state, prev_action):
             elif curr_state.board.board_state[x_pixel][y_pixel] == 2:
                 curr_state.board.board_state[x_pixel][y_pixel] = 1
     # print(a)
-    return action_agent(curr_state.board.encode())
+    action = act(obs[None])[0]
+    return action
     # return gym.gym_gomoku.envs.util.make_beginner_policy(np.random)(curr_state, prev_state, prev_action)
 
 
@@ -203,6 +204,23 @@ def learn(env,
             return U.BatchInput((flattened_env_shape,), name=name)
         return U.BatchInput(env.observation_space.shape)
 
+    def opponent_policy(curr_state, prev_state, prev_action):
+        '''
+        Define policy for opponent here
+        '''
+        # a = curr_state.board.board_state
+        # print(a)
+        for x_pixel in range(0, curr_state.board.board_state.shape[0]):
+            for y_pixel in range(0, curr_state.board.board_state.shape[1]):
+                # print(curr_state.board.board_state[x_pixel][y_pixel])
+                # status_in_pixel = curr_state.board.board_state[x_pixel][y_pixel]
+                if (curr_state.board.board_state[x_pixel][y_pixel] == 1):
+                    curr_state.board.board_state[x_pixel][y_pixel] = 2
+                elif curr_state.board.board_state[x_pixel][y_pixel] == 2:
+                    curr_state.board.board_state[x_pixel][y_pixel] = 1
+        # print(a)
+        action = act(obs[None])[0]
+        return action
     act, train, update_target, debug = deepq.build_train(
         make_obs_ph=make_obs_ph,
         q_func=q_func,
