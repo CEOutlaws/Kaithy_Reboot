@@ -103,7 +103,7 @@ def load(path, num_cpu=16):
 
 def learn(env,
           q_func,
-          double_q=False,
+          double_q=True,
           flatten_obs=False,
           lr=5e-4,
           max_timesteps=100000,
