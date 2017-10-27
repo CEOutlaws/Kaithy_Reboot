@@ -13,6 +13,9 @@ class AdversarialEnv:
 
         self.reset()
 
+    def set_opponent_policy(self, opponent_policy):
+        self.__opponent_policy = opponent_policy
+
     def step(self, action):
         return self.env.step(action)
 
