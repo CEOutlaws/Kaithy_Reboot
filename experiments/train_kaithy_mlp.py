@@ -22,6 +22,7 @@ def main():
         env,
         q_func=model,
         flatten_obs=True,
+        adversarial=True,
         lr=1e-3,
         max_timesteps=100000,
         buffer_size=1000,

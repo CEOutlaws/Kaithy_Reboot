@@ -81,6 +81,7 @@ def learn(env,
           q_func,
           double_q=True,
           flatten_obs=False,
+          adversarial=False,
           lr=5e-4,
           max_timesteps=100000,
           buffer_size=50000,
@@ -121,6 +122,8 @@ def learn(env,
         if True use target Q to evaluate Q_tp1 (NOTICE: q_func is still used to select a_tp1)
     flatten_obs: bool
         if True flatten obs explicitly
+    adversarial: bool
+        if True this environment has aversarial property, we must specify opponent policy then
     lr: float
         learning rate for adam optimizer
     max_timesteps: int
@@ -196,26 +199,28 @@ def learn(env,
         param_noise=param_noise
     )
 
-    def opponent_policy(curr_state, prev_state, prev_action):
-        '''
-        Define policy for opponent here
-        '''
-        board_invert = copy.deepcopy(curr_state)
-        # Invert board
-        for x_pixel in range(0, board_invert.board.board_state.shape[0]):
-            for y_pixel in range(0, board_invert.board.board_state.shape[1]):
-                if (board_invert.board.board_state[x_pixel][y_pixel] == 1):
-                    board_invert.board.board_state[x_pixel][y_pixel] = 2
-                elif board_invert.board.board_state[x_pixel][y_pixel] == 2:
-                    board_invert.board.board_state[x_pixel][y_pixel] = 1
-        # Build Action for opponent
-        opponent_obs = board_invert.board.encode()
-        if flatten_obs:
-            opponent_obs = opponent_obs.flatten()
-        action = act(opponent_obs[None])[0]
+    if adversarial:
+        def opponent_policy(curr_state, prev_state, prev_action):
+            '''
+            Define policy for opponent here
+            '''
+            board_invert = copy.deepcopy(curr_state)
+            # Invert board
+            for x_pixel in range(0, board_invert.board.board_state.shape[0]):
+                for y_pixel in range(0, board_invert.board.board_state.shape[1]):
+                    if (board_invert.board.board_state[x_pixel][y_pixel] == 1):
+                        board_invert.board.board_state[x_pixel][y_pixel] = 2
+                    elif board_invert.board.board_state[x_pixel][y_pixel] == 2:
+                        board_invert.board.board_state[x_pixel][y_pixel] = 1
+            # Build Action for opponent
+            opponent_obs = board_invert.board.encode()
+            if flatten_obs:
+                opponent_obs = opponent_obs.flatten()
+            action = act(opponent_obs[None])[0]
 
-        return action
-    env.opponent_policy = opponent_policy
+            return action
+        env.opponent_policy = opponent_policy
+
     act_params = {
         'make_obs_ph': make_obs_ph,
         'q_func': q_func,

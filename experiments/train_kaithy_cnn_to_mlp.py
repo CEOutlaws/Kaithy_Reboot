@@ -24,6 +24,7 @@ def main():
     act = deepq.learn(
         env,
         q_func=model,
+        adversarial=True,
         lr=1e-4,
         max_timesteps=2000000,
         buffer_size=10000,
