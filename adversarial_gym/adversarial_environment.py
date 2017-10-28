@@ -7,7 +7,7 @@ from . import gym_gomoku
 
 
 class AdversarialEnv:
-    def __init__(self, environment_id, opponent_policy):
+    def __init__(self, environment_id, opponent_policy=None):
         self.env = gym.make(environment_id)
         self._opponent_policy = opponent_policy
 
@@ -27,7 +27,7 @@ class AdversarialEnv:
     def reset(self):
         # A trick
         # Reset env and attach defined opponent policy to env
-        return self.env.step(self.opponent_policy)
+        return self.env.step(self._opponent_policy)
 
     def render(self):
         return self.env.render()

@@ -15,7 +15,7 @@ def opponent_policy(curr_state, prev_state, prev_action):
 
 
 def main():
-    env = gym.make('Gomoku9x9-training-camp-v0', None)
+    env = gym.make('Gomoku9x9-training-camp-v0')
     # Enabling layer_norm here is import for parameter space noise!
     model = deepq.models.mlp([64], layer_norm=True)
     act = deepq.learn(

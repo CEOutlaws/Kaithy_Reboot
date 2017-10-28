@@ -210,7 +210,8 @@ def learn(env,
                     board_invert.board.board_state[x_pixel][y_pixel] = 1
         # Build Action for opponent
         opponent_obs = board_invert.board.encode()
-        opponent_obs = opponent_obs.flatten()
+        if flatten_obs:
+            opponent_obs = opponent_obs.flatten()
         action = act(opponent_obs[None])[0]
 
         return action
