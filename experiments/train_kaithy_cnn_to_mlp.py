@@ -30,11 +30,12 @@ def main():
         buffer_size=10000,
         exploration_fraction=0.1,
         exploration_final_eps=0.01,
-        train_freq=10,
+        train_freq=1,
+        print_freq=100,
         learning_starts=1000,
         target_network_update_freq=1000,
         gamma=0.99,
-        prioritized_replay=False
+        prioritized_replay=True
     )
     print("Saving model to kaithy_mlp_model.pkl")
     act.save("kaithy_mlp_model.pkl")
