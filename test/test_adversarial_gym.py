@@ -18,7 +18,7 @@ def main():
     AI Self-training program
     '''
     env = gym.make('Gomoku9x9-training-camp-v0', opponent_policy)
-    env.reset()
+    observation = env.reset()
 
     while True:
         action = env.action_space.sample()  # sample without replacement
