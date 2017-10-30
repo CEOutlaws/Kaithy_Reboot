@@ -32,3 +32,14 @@ register(
     },
     nondeterministic=True,
 )
+
+register(
+    id='Gomoku15x15-training-camp-v0',
+    entry_point='adversarial_gym.gym_gomoku.envs:GomokuEnv',
+    kwargs={
+        'player_color': 'black',
+        'opponent': 'player',
+        'board_size': 15,
+    },
+    nondeterministic=True,
+)

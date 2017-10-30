@@ -15,12 +15,12 @@ def opponent_policy(curr_state, prev_state, prev_action):
 
 
 def main():
-    env = gym.make('Gomoku9x9-training-camp-v0', opponent_policy)
+    env = gym.make('Gomoku15x15-training-camp-v0', opponent_policy)
     # Enabling layer_norm here is import for parameter space noise!
     model = deepq.models.cnn_to_mlp(
-        convs=[(64, 3, 1), (64, 3, 1), (64, 3, 1), (64, 3, 1),
-               (64, 3, 1), (64, 3, 1), (64, 3, 1), (64, 3, 1)],
-        hiddens=[64]
+        convs=[(256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1),
+               (256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1)],
+        hiddens=[256, 256]
     )
     act = deepq.learn(
         env,
@@ -30,9 +30,8 @@ def main():
         buffer_size=10000,
         exploration_fraction=0.1,
         exploration_final_eps=0.01,
-        train_freq=1,
-        print_freq=100,
-        learning_starts=1000,
+        train_freq=4,
+        learning_starts=10000,
         target_network_update_freq=1000,
         gamma=0.99,
         prioritized_replay=True
