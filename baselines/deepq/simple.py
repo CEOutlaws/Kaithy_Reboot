@@ -200,16 +200,10 @@ def learn(env,
         '''
         Define policy for opponent here
         '''
-        board_invert = copy.deepcopy(curr_state)
-        # Invert board
-        for x_pixel in range(0, board_invert.board.board_state.shape[0]):
-            for y_pixel in range(0, board_invert.board.board_state.shape[1]):
-                if (board_invert.board.board_state[x_pixel][y_pixel] == 1):
-                    board_invert.board.board_state[x_pixel][y_pixel] = 2
-                elif board_invert.board.board_state[x_pixel][y_pixel] == 2:
-                    board_invert.board.board_state[x_pixel][y_pixel] = 1
-        # Build Action for opponent
-        opponent_obs = board_invert.board.encode()
+        # Opponent observation = inverted player observation
+        opponent_obs = np.roll(curr_state.board.encode(), 1, axis=2)
+
+        # Get opponent action
         if flatten_obs:
             opponent_obs = opponent_obs.flatten()
         action = act(opponent_obs[None])[0]
