@@ -88,9 +88,9 @@ def validate(env, act):
             action = act(obs[None])[0]
             obs, reward, done, info = env.step(action)
             if done:
-                if reward is 1.:
+                if reward == 1.:
                     win_count += 1
-                elif reward is -1.:
+                elif reward == -1.:
                     lose_count += 1
                 break
 
