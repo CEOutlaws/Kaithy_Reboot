@@ -10,21 +10,6 @@ def opponent_policy(curr_state, prev_state, prev_action):
     '''
     Define policy for opponent here
     '''
-    # a = curr_state.board.board_state
-    # print(a)
-    board = copy.deepcopy(curr_state)
-    print(board.board, curr_state.board)
-    input("wait")
-    for x_pixel in range(0, curr_state.board.board_state.shape[0]):
-        for y_pixel in range(0, curr_state.board.board_state.shape[1]):
-            # print(curr_state.board.board_state[x_pixel][y_pixel])
-            # status_in_pixel = curr_state.board.board_state[x_pixel][y_pixel]
-            if (curr_state.board.board_state[x_pixel][y_pixel] == 1):
-                curr_state.board.board_state[x_pixel][y_pixel] = 2
-            elif curr_state.board.board_state[x_pixel][y_pixel] == 2:
-                curr_state.board.board_state[x_pixel][y_pixel] = 1
-    # print(a)
-
     return gym.gym_gomoku.envs.util.make_beginner_policy(np.random)(curr_state, prev_state, prev_action)
 
 
