@@ -77,7 +77,28 @@ def load(path, num_cpu=16):
     return ActWrapper.load(path, num_cpu=num_cpu)
 
 
+def validate(val_env, act):
+    num_episodes = 100
+    win_count = 0
+    lose_count = 0
+
+    for i in range(num_episodes):
+        obs = env.reset()
+        while True:
+            action = act(obs[None])[0]
+            obs, reward, done, info = env.step(action)
+            if done:
+                if reward is 1.:
+                    win_count += 1
+                elif reward is -1.:
+                    lose_count += 1
+                break
+
+    return win_count, lose_count, num_episodes - win_count - lose_count
+
+
 def learn(env,
+          val_env,
           q_func,
           double_q=True,
           flatten_obs=False,
@@ -87,6 +108,7 @@ def learn(env,
           exploration_fraction=0.1,
           exploration_final_eps=0.02,
           train_freq=1,
+          val_freq=1,
           batch_size=32,
           print_freq=1,
           checkpoint_freq=10000,
@@ -107,6 +129,8 @@ def learn(env,
     -------
     env: gym.Env
         environment to train on
+    val_env: gym.Env
+        environment to valid on
     q_func: (tf.Variable, int, str, bool) -> tf.Variable
         the model that takes the following inputs:
             observation_in: object
@@ -134,6 +158,8 @@ def learn(env,
     train_freq: int
         update the model every `train_freq` steps.
         set to None to disable printing
+    val_freq: int
+        validate the model every 'val_freq' episodes
     batch_size: int
         size of a batched sampled from replay buffer for training
     print_freq: int
@@ -320,6 +346,17 @@ def learn(env,
                     "mean 100 episode reward", mean_100ep_reward)
                 logger.record_tabular(
                     "% time spent exploring", int(100 * exploration.value(t)))
+                logger.dump_tabular()
+            if done and val_env is not None and val_freq is not None and len(episode_rewards) % val_freq == 0:
+                num_win, num_lose, num_draw = validate(val_env, act)
+                logger.record_tabular(
+                    "Execution time so far", time.time() - start_time)
+                logger.record_tabular(
+                    "Wall-clock time so far", time.clock() - start_clock)
+                logger.record_tabular("win", num_win)
+                logger.record_tabular("lose", num_lose)
+                logger.record_tabular("draw", num_draw)
+
                 logger.dump_tabular()
 
             if (checkpoint_freq is not None and t > learning_starts and
