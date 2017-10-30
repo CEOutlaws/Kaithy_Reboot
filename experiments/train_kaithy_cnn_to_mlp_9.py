@@ -7,9 +7,16 @@ import adversarial_gym as gym
 from baselines import deepq
 
 
+def val_opponent_policy(curr_state, prev_state, prev_action):
+    '''
+    Define policy for opponent to validate model here
+    '''
+    return gym.gym_gomoku.envs.util.make_beginner_policy(np.random)(curr_state, prev_state, prev_action)
+
+
 def main():
     env = gym.make('Gomoku9x9-training-camp-v0')
-    val_env = gym.make('Gomoku9x9-v0')
+    val_env = gym.make('Gomoku9x9-training-camp-v0', val_opponent_policy)
     # Enabling layer_norm here is import for parameter space noise!
     model = deepq.models.cnn_to_mlp(
         convs=[(64, 3, 1), (64, 3, 1), (64, 3, 1), (64, 3, 1),
@@ -23,6 +30,7 @@ def main():
         lr=1e-4,
         max_timesteps=2000000,
         buffer_size=10000,
+        batch_size=100,
         exploration_fraction=0.1,
         exploration_final_eps=0.01,
         train_freq=1,
