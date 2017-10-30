@@ -77,7 +77,7 @@ def load(path, num_cpu=16):
     return ActWrapper.load(path, num_cpu=num_cpu)
 
 
-def validate(val_env, act):
+def validate(env, act):
     num_episodes = 100
     win_count = 0
     lose_count = 0
