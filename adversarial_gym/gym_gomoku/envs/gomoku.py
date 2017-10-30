@@ -52,8 +52,8 @@ class GomokuState(object):
 class DiscreteWrapper(spaces.Discrete):
     '''
     Attribute:
-        valid_spaces: 
-            Valid action space. 
+        valid_spaces:
+            Valid action space.
             Valid action is legal move action, basically the position on board is not empty
     '''
 
@@ -107,7 +107,7 @@ class GomokuEnv(gym.Env):
 
         # Observation space on board
         # board_size * board_size
-        shape = (self.board_size, self.board_size, 1)
+        shape = (self.board_size, self.board_size, 2)
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
         # One action for each board position
         self.action_space = DiscreteWrapper(self.board_size**2)
@@ -162,22 +162,22 @@ class GomokuEnv(gym.Env):
 
     def _step(self, action):
         '''
-        Args: 
-            action: 
+        Args:
+            action:
                 value: 0 -> num_actions
                 type: int
-        Return: 
-            observation: 
+        Return:
+            observation:
                 board encoding
                 type: 2D array, black X -> 1, white O -> 2
-            reward: 
-                reward of the game, 
+            reward:
+                reward of the game,
                 type: float
-                value: 
+                value:
                     1: win
                     -1: lose or player's action is invalid
                     0: draw or nothing or opponent's action is invalid
-            done: 
+            done:
                 type: boolean
                 value:
                     True: game is finish or invalid move is taken
@@ -186,9 +186,9 @@ class GomokuEnv(gym.Env):
         Raise:
             Illegal Move action, basically the position on board is not empty
 
-        Args: 
+        Args:
             action: function
-        Do: 
+        Do:
             Reset env and attach defined opponent policy to env
         '''
         # A trick to use step as general method of enviroment class
@@ -381,4 +381,15 @@ class Board(object):
         '''Return: np array
             np.array(board_size, board_size, 1): state observation of the board
         '''
-        return np.stack((self.board_state,), axis=-1)
+        # obs_w_w_1 = np.stack((self.board_state,), axis=-1)
+
+        obs_w_w_2 = np.zeros((self.size, self.size, 2), dtype=np.uint8)
+        board_state_iter = np.nditer(self.board_state, flags=['multi_index'])
+        while not board_state_iter.finished:
+            if (board_state_iter[0] == 1):
+                obs_w_w_2[board_state_iter.multi_index][0] = 1
+            elif (board_state_iter[0] == 2):
+                obs_w_w_2[board_state_iter.multi_index][1] = 1
+            board_state_iter.iternext()
+
+        return obs_w_w_2
