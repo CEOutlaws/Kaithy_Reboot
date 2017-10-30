@@ -146,7 +146,8 @@ class BatchInput(PlacholderTfInput):
         name: str
             name of the underlying placeholder
         """
-        super().__init__(tf.placeholder(dtype, [None] + list(shape), name=name))
+        super().__init__(tf.placeholder(
+            dtype, [None] + list(shape), name=name))
 
 
 class Uint8Input(PlacholderTfInput):
@@ -164,7 +165,8 @@ class Uint8Input(PlacholderTfInput):
             name of the underlying placeholder
         """
 
-        super().__init__(tf.placeholder(tf.uint8, [None] + list(shape), name=name))
+        super().__init__(tf.placeholder(
+            tf.uint8, [None] + list(shape), name=name))
         self._shape = shape
         self._output = tf.cast(super().get(), tf.float32) / 255.0
 
@@ -225,6 +227,7 @@ def make_session(num_cpu):
     tf_config = tf.ConfigProto(
         inter_op_parallelism_threads=num_cpu,
         intra_op_parallelism_threads=num_cpu)
+    tf_config.gpu_options.allow_growth = True
     return tf.Session(config=tf_config)
 
 
@@ -295,7 +298,8 @@ def conv2d(x, num_filters, name, filter_size=(3, 3), stride=(1, 1), pad="SAME", 
            summary_tag=None):
     with tf.variable_scope(name):
         stride_shape = [1, stride[0], stride[1], 1]
-        filter_shape = [filter_size[0], filter_size[1], int(x.get_shape()[3]), num_filters]
+        filter_shape = [filter_size[0], filter_size[1],
+                        int(x.get_shape()[3]), num_filters]
 
         # there are "num input feature maps * filter height * filter width"
         # inputs to each hidden unit
@@ -322,10 +326,12 @@ def conv2d(x, num_filters, name, filter_size=(3, 3), stride=(1, 1), pad="SAME", 
 
 
 def dense(x, size, name, weight_init=None, bias=True):
-    w = tf.get_variable(name + "/w", [x.get_shape()[1], size], initializer=weight_init)
+    w = tf.get_variable(
+        name + "/w", [x.get_shape()[1], size], initializer=weight_init)
     ret = tf.matmul(x, w)
     if bias:
-        b = tf.get_variable(name + "/b", [size], initializer=tf.zeros_initializer())
+        b = tf.get_variable(
+            name + "/b", [size], initializer=tf.zeros_initializer())
         return ret + b
     else:
         return ret
@@ -334,8 +340,10 @@ def dense(x, size, name, weight_init=None, bias=True):
 def wndense(x, size, name, init_scale=1.0):
     v = tf.get_variable(name + "/V", [int(x.get_shape()[1]), size],
                         initializer=tf.random_normal_initializer(0, 0.05))
-    g = tf.get_variable(name + "/g", [size], initializer=tf.constant_initializer(init_scale))
-    b = tf.get_variable(name + "/b", [size], initializer=tf.constant_initializer(0.0))
+    g = tf.get_variable(
+        name + "/g", [size], initializer=tf.constant_initializer(init_scale))
+    b = tf.get_variable(name + "/b", [size],
+                        initializer=tf.constant_initializer(0.0))
 
     # use weight normalization (Salimans & Kingma, 2016)
     x = tf.matmul(x, v)
@@ -348,7 +356,8 @@ def densenobias(x, size, name, weight_init=None):
 
 
 def dropout(x, pkeep, phase=None, mask=None):
-    mask = tf.floor(pkeep + tf.random_uniform(tf.shape(x))) if mask is None else mask
+    mask = tf.floor(pkeep + tf.random_uniform(tf.shape(x))
+                    ) if mask is None else mask
     if phase is None:
         return mask * x
     else:
@@ -358,7 +367,6 @@ def dropout(x, pkeep, phase=None, mask=None):
 # ================================================================
 # Theano-like Function
 # ================================================================
-
 
 
 def function(inputs, outputs, updates=None, givens=None):
@@ -406,7 +414,8 @@ class _Function(object):
     def __init__(self, inputs, outputs, updates, givens, check_nan=False):
         for inpt in inputs:
             if not issubclass(type(inpt), TfInput):
-                assert len(inpt.op.inputs) == 0, "inputs should all be placeholders of baselines.common.TfInput"
+                assert len(
+                    inpt.op.inputs) == 0, "inputs should all be placeholders of baselines.common.TfInput"
         self.inputs = inputs
         updates = updates or []
         self.update_group = tf.group(*updates)
@@ -432,17 +441,20 @@ class _Function(object):
             inpt_name = inpt.name.split(':')[0]
             inpt_name = inpt_name.split('/')[-1]
             assert inpt_name not in kwargs_passed_inpt_names, \
-                "this function has two arguments with the same name \"{}\", so kwargs cannot be used.".format(inpt_name)
+                "this function has two arguments with the same name \"{}\", so kwargs cannot be used.".format(
+                    inpt_name)
             if inpt_name in kwargs:
                 kwargs_passed_inpt_names.add(inpt_name)
                 self._feed_input(feed_dict, inpt, kwargs.pop(inpt_name))
             else:
                 assert inpt in self.givens, "Missing argument " + inpt_name
-        assert len(kwargs) == 0, "Function got extra arguments " + str(list(kwargs.keys()))
+        assert len(kwargs) == 0, "Function got extra arguments " + \
+            str(list(kwargs.keys()))
         # Update feed dict with givens.
         for inpt in self.givens:
             feed_dict[inpt] = feed_dict.get(inpt, self.givens[inpt])
-        results = get_session().run(self.outputs_update, feed_dict=feed_dict)[:-1]
+        results = get_session().run(self.outputs_update,
+                                    feed_dict=feed_dict)[:-1]
         if self.check_nan:
             if any(np.isnan(r).any() for r in results):
                 raise RuntimeError("Nan detected")
@@ -453,7 +465,8 @@ def mem_friendly_function(nondata_inputs, data_inputs, outputs, batch_size):
     if isinstance(outputs, list):
         return _MemFriendlyFunction(nondata_inputs, data_inputs, outputs, batch_size)
     else:
-        f = _MemFriendlyFunction(nondata_inputs, data_inputs, [outputs], batch_size)
+        f = _MemFriendlyFunction(nondata_inputs, data_inputs, [
+                                 outputs], batch_size)
         return lambda *inputs: f(*inputs)[0]
 
 
@@ -465,7 +478,8 @@ class _MemFriendlyFunction(object):
         self.batch_size = batch_size
 
     def __call__(self, *inputvals):
-        assert len(inputvals) == len(self.nondata_inputs) + len(self.data_inputs)
+        assert len(inputvals) == len(
+            self.nondata_inputs) + len(self.data_inputs)
         nondata_vals = inputvals[0:len(self.nondata_inputs)]
         data_vals = inputvals[len(self.nondata_inputs):]
         feed_dict = dict(zip(self.nondata_inputs, nondata_vals))
@@ -473,7 +487,8 @@ class _MemFriendlyFunction(object):
         for v in data_vals[1:]:
             assert v.shape[0] == n
         for i_start in range(0, n, self.batch_size):
-            slice_vals = [v[i_start:builtins.min(i_start + self.batch_size, n)] for v in data_vals]
+            slice_vals = [v[i_start:builtins.min(
+                i_start + self.batch_size, n)] for v in data_vals]
             for (var, val) in zip(self.data_inputs, slice_vals):
                 feed_dict[var] = val
             results = tf.get_default_session().run(self.outputs, feed_dict=feed_dict)
@@ -627,7 +642,8 @@ class SetFromFlat(object):
         assigns = []
         for (shape, v) in zip(shapes, var_list):
             size = intprod(shape)
-            assigns.append(tf.assign(v, tf.reshape(theta[start:start + size], shape)))
+            assigns.append(tf.assign(v, tf.reshape(
+                theta[start:start + size], shape)))
             start += size
         self.op = tf.group(*assigns)
 
@@ -637,7 +653,8 @@ class SetFromFlat(object):
 
 class GetFlat(object):
     def __init__(self, var_list):
-        self.op = tf.concat(axis=0, values=[tf.reshape(v, [numel(v)]) for v in var_list])
+        self.op = tf.concat(
+            axis=0, values=[tf.reshape(v, [numel(v)]) for v in var_list])
 
     def __call__(self):
         return get_session().run(self.op)
@@ -712,7 +729,8 @@ def lengths_to_mask(lengths_b, max_length):
     """
     lengths_b = tf.convert_to_tensor(lengths_b)
     assert lengths_b.get_shape().ndims == 1
-    mask_bt = tf.expand_dims(tf.range(max_length), 0) < tf.expand_dims(lengths_b, 1)
+    mask_bt = tf.expand_dims(tf.range(max_length),
+                             0) < tf.expand_dims(lengths_b, 1)
     return mask_bt
 
 
