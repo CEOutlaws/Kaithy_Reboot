@@ -269,6 +269,8 @@ def learn(env,
     reset = True
     start_time = time.time()
     start_clock = time.clock()
+    td_errors = -1
+
     with tempfile.TemporaryDirectory() as td:
         model_saved = False
         model_file = os.path.join(td, "model")
@@ -341,6 +343,7 @@ def learn(env,
                 logger.record_tabular(
                     "Wall-clock time so far", time.clock() - start_clock)
                 logger.record_tabular("steps", t)
+                logger.record_tabular("TD-Error", td_errors)
                 logger.record_tabular("episodes", num_episodes)
                 logger.record_tabular(
                     "mean 100 episode reward", mean_100ep_reward)
