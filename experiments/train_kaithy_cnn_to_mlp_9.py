@@ -31,7 +31,7 @@ def main():
         max_timesteps=2000000,
         buffer_size=10000,
         batch_size=32,
-        exploration_fraction=0.1,
+        exploration_fraction=0.95,
         exploration_final_eps=0.01,
         train_freq=1,
         val_freq=1000,
