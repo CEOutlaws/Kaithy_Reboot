@@ -6,6 +6,7 @@ import copy
 import os
 import collections
 
+data_type = tf.float16
 
 # ================================================================
 # Make consistent with numpy
@@ -134,7 +135,7 @@ class PlacholderTfInput(TfInput):
 
 
 class BatchInput(PlacholderTfInput):
-    def __init__(self, shape, dtype=tf.float32, name=None):
+    def __init__(self, shape, dtype=data_type, name=None):
         """Creates a placeholder for a batch of tensors of a given shape and dtype
 
         Parameters

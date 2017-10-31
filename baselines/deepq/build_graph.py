@@ -145,10 +145,10 @@ def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None):
     with tf.variable_scope(scope, reuse=reuse):
         observations_ph = U.ensure_tf_input(make_obs_ph("observation"))
         stochastic_ph = tf.placeholder(tf.bool, (), name="stochastic")
-        update_eps_ph = tf.placeholder(tf.float32, (), name="update_eps")
+        update_eps_ph = tf.placeholder(U.data_type, (), name="update_eps")
 
         eps = tf.get_variable(
-            "eps", (), initializer=tf.constant_initializer(0))
+            "eps", (), dtype=U.data_type, initializer=tf.constant_initializer(0))
 
         q_values = q_func(observations_ph.get(), num_actions, scope="q_func")
         deterministic_actions = tf.argmax(q_values, axis=1)
@@ -157,7 +157,7 @@ def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None):
         random_actions = tf.random_uniform(
             tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=tf.int64)
         chose_random = tf.random_uniform(
-            tf.stack([batch_size]), minval=0, maxval=1, dtype=tf.float32) < eps
+            tf.stack([batch_size]), minval=0, maxval=1, dtype=U.data_type) < eps
         stochastic_actions = tf.where(
             chose_random, random_actions, deterministic_actions)
 
@@ -211,9 +211,9 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
     with tf.variable_scope(scope, reuse=reuse):
         observations_ph = U.ensure_tf_input(make_obs_ph("observation"))
         stochastic_ph = tf.placeholder(tf.bool, (), name="stochastic")
-        update_eps_ph = tf.placeholder(tf.float32, (), name="update_eps")
+        update_eps_ph = tf.placeholder(U.data_type, (), name="update_eps")
         update_param_noise_threshold_ph = tf.placeholder(
-            tf.float32, (), name="update_param_noise_threshold")
+            U.data_type, (), name="update_param_noise_threshold")
         update_param_noise_scale_ph = tf.placeholder(
             tf.bool, (), name="update_param_noise_scale")
         reset_ph = tf.placeholder(tf.bool, (), name="reset")
@@ -284,7 +284,7 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
         random_actions = tf.random_uniform(
             tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=tf.int64)
         chose_random = tf.random_uniform(
-            tf.stack([batch_size]), minval=0, maxval=1, dtype=tf.float32) < eps
+            tf.stack([batch_size]), minval=0, maxval=1, dtype=U.data_type) < eps
         stochastic_actions = tf.where(
             chose_random, random_actions, deterministic_actions)
 
@@ -374,11 +374,11 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         # set up placeholders
         obs_t_input = U.ensure_tf_input(make_obs_ph("obs_t"))
         act_t_ph = tf.placeholder(tf.int32, [None], name="action")
-        rew_t_ph = tf.placeholder(tf.float32, [None], name="reward")
+        rew_t_ph = tf.placeholder(U.data_type, [None], name="reward")
         obs_tp1_input = U.ensure_tf_input(make_obs_ph("obs_tp1"))
-        done_mask_ph = tf.placeholder(tf.float32, [None], name="done")
+        done_mask_ph = tf.placeholder(U.data_type, [None], name="done")
         importance_weights_ph = tf.placeholder(
-            tf.float32, [None], name="weight")
+            U.data_type, [None], name="weight")
 
         # q network evaluation
         q_t = q_func(obs_t_input.get(), num_actions, scope="q_func",
@@ -392,7 +392,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
 
         # q scores for actions which we know were selected in the given state.
         q_t_selected = tf.reduce_sum(
-            q_t * tf.one_hot(act_t_ph, num_actions), 1)
+            q_t * tf.one_hot(act_t_ph, num_actions, dtype=U.data_type), 1)
 
         # compute estimate of best possible value starting from state at t + 1
         if double_q:
@@ -400,7 +400,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
                 obs_tp1_input.get(), num_actions, scope="q_func", reuse=True)
             q_tp1_best_using_online_net = tf.argmax(q_tp1_using_online_net, 1)
             q_tp1_best = tf.reduce_sum(
-                q_tp1 * tf.one_hot(q_tp1_best_using_online_net, num_actions), 1)
+                q_tp1 * tf.one_hot(q_tp1_best_using_online_net, num_actions, dtype=U.data_type), 1)
         else:
             q_tp1_best = tf.reduce_max(q_tp1, 1)
         q_tp1_best_masked = (1.0 - done_mask_ph) * q_tp1_best
