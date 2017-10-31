@@ -340,9 +340,9 @@ def learn(env,
             num_episodes = len(episode_rewards)
             if done and print_freq is not None and len(episode_rewards) % print_freq == 0:
                 logger.record_tabular(
-                    "Execution time so far", time.time() - start_time)
+                    "Execution time", time.time() - start_time)
                 logger.record_tabular(
-                    "Wall-clock time so far", time.clock() - start_clock)
+                    "Wall-clock time", time.clock() - start_clock)
                 logger.record_tabular("steps", t)
                 if td_errors is not None:
                     logger.record_tabular(
@@ -353,6 +353,9 @@ def learn(env,
                 logger.record_tabular(
                     "% time spent exploring", int(100 * exploration.value(t)))
                 logger.dump_tabular()
+                start_time = time.time()
+                start_clock = time.clock()
+
             if done and val_env is not None and val_freq is not None and len(episode_rewards) % val_freq == 0:
                 num_win, num_lose, num_draw = validate(val_env, act)
                 if print_freq is not None:
