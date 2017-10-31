@@ -6,7 +6,7 @@ import copy
 import os
 import collections
 
-data_type = tf.float16
+data_type = tf.float32
 
 # ================================================================
 # Make consistent with numpy

@@ -1,6 +1,8 @@
 import tensorflow as tf
 import tensorflow.contrib.layers as layers
 
+normalizer_fn = layers.batch_norm
+
 
 def _mlp(hiddens, inpt, num_actions, scope, reuse=False, layer_norm=False):
     with tf.variable_scope(scope, reuse=reuse):
@@ -38,6 +40,7 @@ def _cnn_to_mlp(convs, hiddens, dueling, inpt, num_actions, scope, reuse=False, 
         with tf.variable_scope("convnet"):
             for num_outputs, kernel_size, stride in convs:
                 out = layers.convolution2d(out,
+                                           normalizer_fn=normalizer_fn,
                                            num_outputs=num_outputs,
                                            kernel_size=kernel_size,
                                            stride=stride,
