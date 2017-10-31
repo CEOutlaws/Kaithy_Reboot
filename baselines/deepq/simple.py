@@ -204,12 +204,15 @@ def learn(env,
     sess.__enter__()
 
     def make_obs_ph(name):
+        obs_shape = env.observation_space.shape
+
         if flatten_obs:
             flattened_env_shape = 1
             for dim_size in env.observation_space.shape:
                 flattened_env_shape *= dim_size
-            return U.BatchInput((flattened_env_shape,), name=name)
-        return U.BatchInput(env.observation_space.shape)
+            obs_shape = (flattened_env_shape,)
+
+        return U.BatchInput(obs_shape, name=name)
 
     act, train, update_target, debug = deepq.build_train(
         make_obs_ph=make_obs_ph,
