@@ -41,8 +41,8 @@ def main():
         gamma=0.99,
         prioritized_replay=True
     )
-    print("Saving model to kaithy_mlp_model.pkl")
-    act.save("kaithy_mlp_model.pkl")
+    print("Saving model to kaithy_cnn_to_mlp_9_model.pkl")
+    act.save("kaithy_cnn_to_mlp_9_model.pkl")
 
 
 if __name__ == '__main__':
