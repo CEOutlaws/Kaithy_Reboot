@@ -27,6 +27,7 @@ def main():
             obs, rew, done, _ = env.step(act(obs[None])[0])
             episode_rew += rew
         print("Episode reward", episode_rew)
+        input('Hit enter to play next match')
 
 
 if __name__ == '__main__':
