@@ -6,6 +6,7 @@ import tensorflow as tf
 import zipfile
 import time
 import copy
+import sys
 
 import baselines.common.tf_util as U
 
@@ -13,6 +14,8 @@ from baselines import logger
 from baselines.common.schedules import LinearSchedule
 from baselines import deepq
 from baselines.deepq.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+
+sys.setrecursionlimit(20000)
 
 
 class ActWrapper(object):
