@@ -49,37 +49,33 @@ class GomokuState(object):
 # sample() method will only sample from valid spaces
 
 
-class DiscreteWrapper(spaces.Discrete):
+class DiscreteWrapper2d(spaces.Discrete):
     '''
     Attribute:
-        valid_spaces:
-            Valid action space.
-            Valid action is legal move action, basically the position on board is not empty
+        fill_space_mask:
+            fill space is a space that no longer store any more value
+            1 indicate fill space
+            0 indicate empty space
     '''
 
-    def __init__(self, n):
-        self.n = n
-        self.valid_spaces = list(range(n))
+    def __init__(self, w):
+        self.n = np.square(w)
+        self.fill_space_mask = np.zeros(self.n, dtype=np.int32)
 
     def sample(self):
-        '''Only sample from the remaining valid spaces
+        '''Only sample from the remaining empty spaces
         '''
-        if len(self.valid_spaces) == 0:
-            print("Space is empty")
-            return None
-        np_random, _ = seeding.np_random()
-        randint = np_random.randint(len(self.valid_spaces))
-        return self.valid_spaces[randint]
+        try:
+            return np.random.choice(np.argwhere(self.fill_space_mask == 0).flatten())
+        except(ValueError):
+            return print("No empty space available")
 
     def remove(self, s):
-        '''Remove space s from the valid spaces
+        '''Fill space s
         '''
         if s is None:
             return
-        if s in self.valid_spaces:
-            self.valid_spaces.remove(s)
-        else:
-            print("space %d is not in valid spaces" % s)
+        self.fill_space_mask[s] = 1
 
 
 # Environment
@@ -110,7 +106,7 @@ class GomokuEnv(gym.Env):
         shape = (self.board_size, self.board_size, 2)
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
         # One action for each board position
-        self.action_space = DiscreteWrapper(self.board_size**2)
+        self.action_space = DiscreteWrapper2d(self.board_size**2)
 
         # Keep track of the moves
         self.moves = []
@@ -144,7 +140,7 @@ class GomokuEnv(gym.Env):
         assert self.state.color == self.player_color
 
         # reset action_space
-        self.action_space = DiscreteWrapper(self.board_size**2)
+        self.action_space = DiscreteWrapper2d(self.board_size)
 
         self.done = self.state.board.is_terminal()
         return self.state.board.encode()
@@ -200,9 +196,9 @@ class GomokuEnv(gym.Env):
         if self.done:
             return self.state.board.encode(), 0., True, {'state': self.state}
 
-        # check if it's legal move
-        # the action coordinate is not empty
-        if action not in self.action_space.valid_spaces:
+        # check if it's illegal move
+        # if the space is fill
+        if self.action_space.fill_space_mask[action]:
             return self.state.board.encode(), -1., True, {'state': self.state}
 
         # Player play
@@ -216,9 +212,9 @@ class GomokuEnv(gym.Env):
         if not self.state.board.is_terminal():
             opponent_action = self._exec_opponent_play(
                 self.state, prev_state, action)
-            # check if it's legal move
-            # the action coordinate is not empty
-            if opponent_action not in self.action_space.valid_spaces:
+            # check if it's illegal move
+            # if the space is fill
+            if self.action_space.fill_space_mask[opponent_action]:
                 return self.state.board.encode(), 0., True, {'state': self.state}
 
             self.state = self.state.act(opponent_action)
@@ -282,7 +278,7 @@ class Board(object):
         self.size = board_size
         # initialize board states to empty
         self.board_state = np.array([[gomoku_util.color_dict['empty']]
-                                     * board_size for i in range(board_size)])
+                                     * board_size for i in range(board_size)], dtype=np.int32)
         self.move = 0                 # how many move has been made
         self.last_coord = (-1, -1)     # last action coord
         self.last_action = None       # last action made
@@ -382,7 +378,7 @@ class Board(object):
         '''
         # obs_w_w_1 = np.stack((self.board_state,), axis=-1)
 
-        obs_w_w_2 = np.zeros((self.size, self.size, 2), dtype=np.uint8)
+        obs_w_w_2 = np.zeros((self.size, self.size, 2), dtype=np.int32)
         board_state_iter = np.nditer(self.board_state, flags=['multi_index'])
         while not board_state_iter.finished:
             if (board_state_iter[0] == 1):
