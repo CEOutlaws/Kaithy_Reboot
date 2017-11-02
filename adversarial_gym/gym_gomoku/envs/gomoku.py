@@ -52,7 +52,7 @@ class GomokuState(object):
 class DiscreteWrapper2d(spaces.Discrete):
     '''
     Attribute:
-        fill_space_mask:
+        invalid_mask:
             fill space is a space that no longer store any more value
             1 indicate fill space
             0 indicate empty space
@@ -60,22 +60,22 @@ class DiscreteWrapper2d(spaces.Discrete):
 
     def __init__(self, w):
         self.n = np.square(w)
-        self.fill_space_mask = np.zeros(self.n, dtype=np.int32)
+        self.invalid_mask = np.zeros(self.n, dtype=np.int32)
 
     def sample(self):
-        '''Only sample from the remaining empty spaces
+        '''Only sample from the remaining valid action
         '''
         try:
-            return np.random.choice(np.argwhere(self.fill_space_mask == 0).flatten())
+            return np.random.choice(np.argwhere(self.invalid_mask == 0).flatten())
         except(ValueError):
-            return print("No empty space available")
+            return print("No valid action available")
 
     def remove(self, s):
         '''Fill space s
         '''
         if s is None:
             return
-        self.fill_space_mask[s] = 1
+        self.invalid_mask[s] = 1
 
 
 # Environment
@@ -199,7 +199,7 @@ class GomokuEnv(gym.Env):
 
         # check if it's illegal move
         # if the space is fill
-        if self.action_space.fill_space_mask[action]:
+        if self.action_space.invalid_mask[action]:
             return self.state.board.encode(), -1., True, {'state': self.state}
 
         # Player play
@@ -215,7 +215,7 @@ class GomokuEnv(gym.Env):
                 self.state, prev_state, action)
             # check if it's illegal move
             # if the space is fill
-            if self.action_space.fill_space_mask[opponent_action]:
+            if self.action_space.invalid_mask[opponent_action]:
                 return self.state.board.encode(), 0., True, {'state': self.state}
 
             self.state = self.state.act(opponent_action)
