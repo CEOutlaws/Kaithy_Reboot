@@ -52,30 +52,30 @@ class GomokuState(object):
 class DiscreteWrapper2d(spaces.Discrete):
     '''
     Attribute:
-        invalid_mask:
-            mask of invalid action
-            1 indicate invalid action
-            0 indicate valid action
+        fill_space_mask:
+            fill space is a space that no longer store any more value
+            1 indicate fill space
+            0 indicate empty space
     '''
 
     def __init__(self, w):
         self.n = np.square(w)
-        self.invalid_mask = np.zeros(self.n, dtype=np.int32)
+        self.fill_space_mask = np.zeros(self.n, dtype=np.int32)
 
     def sample(self):
-        '''Only sample from the remaining valid action
+        '''Only sample from the remaining empty spaces
         '''
         try:
-            return np.random.choice(np.argwhere(self.invalid_mask == 0).flatten())
+            return np.random.choice(np.argwhere(self.fill_space_mask == 0).flatten())
         except(ValueError):
-            return print("No valid action available")
+            return print("No empty space available")
 
     def remove(self, s):
         '''Fill space s
         '''
         if s is None:
             return
-        self.invalid_mask[s] = 1
+        self.fill_space_mask[s] = 1
 
 
 # Environment
@@ -144,7 +144,7 @@ class GomokuEnv(gym.Env):
         self.action_space = DiscreteWrapper2d(self.board_size)
 
         self.done = self.state.board.is_terminal()
-        return self.state.board.encode(self.player_color)
+        return self.state.board.encode()
 
     def _close(self):
         self.opponent_policy = None
@@ -195,12 +195,12 @@ class GomokuEnv(gym.Env):
         assert self.state.color == self.player_color  # it's the player's turn
         # If already terminal, then don't do anything
         if self.done:
-            return self.state.board.encode(self.player_color), 0., True, {'state': self.state}
+            return self.state.board.encode(), 0., True, {'state': self.state}
 
         # check if it's illegal move
         # if the space is fill
-        if self.action_space.invalid_mask[action]:
-            return self.state.board.encode(self.player_color), -1., True, {'state': self.state}
+        if self.action_space.fill_space_mask[action]:
+            return self.state.board.encode(), -1., True, {'state': self.state}
 
         # Player play
         prev_state = self.state
@@ -215,8 +215,8 @@ class GomokuEnv(gym.Env):
                 self.state, prev_state, action)
             # check if it's illegal move
             # if the space is fill
-            if self.action_space.invalid_mask[opponent_action]:
-                return self.state.board.encode(self.player_color), 0., True, {'state': self.state}
+            if self.action_space.fill_space_mask[opponent_action]:
+                return self.state.board.encode(), 0., True, {'state': self.state}
 
             self.state = self.state.act(opponent_action)
             self.moves.append(self.state.board.last_coord)
@@ -228,7 +228,7 @@ class GomokuEnv(gym.Env):
         # Reward: if nonterminal, there is no 5 in a row, then the reward is 0
         if not self.state.board.is_terminal():
             self.done = False
-            return self.state.board.encode(self.player_color), 0., False, {'state': self.state}
+            return self.state.board.encode(), 0., False, {'state': self.state}
 
         # We're in a terminal state. Reward is 1 if won, -1 if lost
         assert self.state.board.is_terminal(), 'The game is terminal'
@@ -244,7 +244,7 @@ class GomokuEnv(gym.Env):
             # check if player_color is the win_color
             player_wins = (self.player_color == win_color)
             reward = 1. if player_wins else -1.
-        return self.state.board.encode(self.player_color), reward, True, {'state': self.state}
+        return self.state.board.encode(), reward, True, {'state': self.state}
 
     def _exec_opponent_play(self, curr_state, prev_state, prev_action):
         '''There is no resign in gomoku'''
@@ -373,25 +373,19 @@ class Board(object):
         out += (label_boundry + label_letters)
         return out
 
-    def encode(self, color):
+    def encode(self):
         '''Return: np array
-            np.array(board_size, board_size, 3): state observation of the board
+            np.array(board_size, board_size, 1): state observation of the board
         '''
         # obs_w_w_1 = np.stack((self.board_state,), axis=-1)
 
-        encoded_color = 0
-        if color == 'white':
-            encoded_color = 1
-
-        obs_w_w_3 = np.zeros((self.size, self.size, 3), dtype=np.int32)
+        obs_w_w_2 = np.zeros((self.size, self.size, 2), dtype=np.int32)
         board_state_iter = np.nditer(self.board_state, flags=['multi_index'])
         while not board_state_iter.finished:
             if (board_state_iter[0] == 1):
-                obs_w_w_3[board_state_iter.multi_index][0] = 1
+                obs_w_w_2[board_state_iter.multi_index][0] = 1
             elif (board_state_iter[0] == 2):
-                obs_w_w_3[board_state_iter.multi_index][1] = 1
-            obs_w_w_3[board_state_iter.multi_index][2] = encoded_color
-
+                obs_w_w_2[board_state_iter.multi_index][1] = 1
             board_state_iter.iternext()
 
-        return obs_w_w_3
+        return obs_w_w_2

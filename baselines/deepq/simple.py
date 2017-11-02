@@ -233,7 +233,7 @@ def learn(env,
         Define policy for opponent here
         '''
         # Opponent observation = inverted player observation
-        opponent_obs = np.roll(curr_state.board.encode('white'), 1, axis=2)
+        opponent_obs = np.roll(curr_state.board.encode(), 1, axis=2)
 
         # Get opponent action
         if flatten_obs:
