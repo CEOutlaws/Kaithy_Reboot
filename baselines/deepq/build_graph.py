@@ -392,7 +392,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
 
         # q scores for actions which we know were selected in the given state.
         q_t_selected = tf.reduce_sum(
-            q_t * tf.one_hot(act_t_ph, num_actions, dtype=U.data_type), 1)
+            q_t * tf.one_hot(act_t_ph, num_actions, dtype=U.data_type), axis=1)
 
         # compute estimate of best possible value starting from state at t + 1
         if double_q:
