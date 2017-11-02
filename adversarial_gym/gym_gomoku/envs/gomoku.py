@@ -132,9 +132,10 @@ class GomokuEnv(gym.Env):
 
         # Let the opponent play if it's not the agent's turn, there is no resign in Gomoku
         if self.state.color != self.player_color:
-            self.state, _ = self._exec_opponent_play(self.state, None, None)
-            opponent_action_coord = self.state.board.last_coord
-            self.moves.append(opponent_action_coord)
+            opponent_action = self._exec_opponent_play(
+                self.state, None, None)
+            self.state = self.state.act(opponent_action)
+            self.moves.append(self.state.board.last_coord)
 
         # We should be back to the agent color
         assert self.state.color == self.player_color
