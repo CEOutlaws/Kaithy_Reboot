@@ -18,14 +18,18 @@ def main():
     AI Self-training program
     '''
     env = gym.make('Gomoku9x9-training-camp-v0', opponent_policy)
-    observation = env.reset()
 
-    while True:
-        action = env.action_space.sample()  # sample without replacement
-        observation, reward, done, info = env.step(action)
-        env.render()
-        if done:
-            break
+    for i in range(2):
+        observation = env.reset()
+        done = None
+
+        while not done:
+            action = env.action_space.sample()  # sample without replacement
+            observation, reward, done, info = env.step(action)
+            env.render()
+
+        env.swap_role()
+        print("\n----SWAP----\n")
 
 
 if __name__ == "__main__":
