@@ -238,8 +238,7 @@ def learn(env,
         # Get opponent action
         if flatten_obs:
             opponent_obs = opponent_obs.flatten()
-        action = act(opponent_obs[None],
-                     update_eps=update_eps, **kwargs)[0]
+        action = act(opponent_obs[None])[0]
 
         return action
     env.opponent_policy = opponent_policy
