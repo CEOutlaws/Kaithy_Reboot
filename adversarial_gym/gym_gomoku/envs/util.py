@@ -283,6 +283,9 @@ def make_beginner_policy(np_random):
         b = curr_state.board
         all_legal_moves = b.get_legal_move()
 
+        if not prev_state:
+            return b.coord_to_action(b.size // 2, b.size // 2)
+
         # last action taken by the oppenent
         last_action = prev_state.board.last_action
         last_coord = prev_state.board.last_coord

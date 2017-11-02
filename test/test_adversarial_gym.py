@@ -17,7 +17,7 @@ def main():
     '''
     AI Self-training program
     '''
-    env = gym.make('Gomoku9x9-training-camp-v0', opponent_policy)
+    env = gym.make('Gomoku5x5-training-camp-v0', opponent_policy)
 
     for i in range(2):
         observation = env.reset()
