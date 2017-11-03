@@ -47,22 +47,42 @@ def main():
     # q_values = tf.where(invalid_mask_ph, q_values - one_mask, q_values)
     q_values = invalid_mask_ph * (q_values_worst - 1.0) + \
         (1.0 - invalid_mask_ph) * q_values
-    deterministic_actions = tf.argmax(q_values, axis=1)
+    deterministic_actions = tf.argmax(q_values, axis=1, output_type=tf.int32)
+    batch_size = tf.shape(obs_ph)[0]
+    stochastic_ph = tf.constant(True, dtype=tf.bool)
+    random_actions = tf.random_uniform(
+        tf.stack([batch_size]), minval=0, maxval=env.action_space.n, dtype=tf.int32)
+    chose_random = tf.random_uniform(
+        tf.stack([batch_size]), minval=0, maxval=1, dtype=tf.float32) < 0.2
+    stochastic_actions = tf.where(
+        chose_random, random_actions, deterministic_actions)
+
+    def get_elements(data, indices):
+        indeces = tf.range(0, tf.shape(indices)[0]) * data.shape[1] + indices
+        return tf.gather(tf.reshape(data, [-1]), indeces)
+    is_invalid_stochastic_actions = get_elements(
+        invalid_mask_ph, stochastic_actions)
+    output_actions = tf.where(tf.logical_and(tf.not_equal(
+        is_invalid_stochastic_actions, 1.), stochastic_ph), stochastic_actions, deterministic_actions)
 
     sess = tf.Session()
+
     for i in range(2):
         observation = env.reset()
         done = None
 
         while not done:
-            action = env.action_space.sample()  # sample without replacement
+            action = sess.run(output_actions, feed_dict={
+                obs_ph: observation[None],
+                invalid_mask_ph: env.action_space.invalid_mask[None]})[0]
+            # action = env.action_space.sample()  # sample without replacement
             observation, reward, done, info = env.step(action)
             env.render()
 
-            print(sess.run(q_values, feed_dict={
-                  obs_ph: observation[None],
-                  invalid_mask_ph: env.action_space.invalid_mask[None]}))
-
+            # print(sess.run(output_actions, feed_dict={
+            #       obs_ph: observation[None],
+            #       invalid_mask_ph: env.action_space.invalid_mask[None]}))
+        print(reward)
         env.swap_role()
         print("\n----SWAP----\n")
 
