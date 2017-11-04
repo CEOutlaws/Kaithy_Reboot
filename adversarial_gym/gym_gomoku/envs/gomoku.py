@@ -58,8 +58,8 @@ class DiscreteWrapper2d(spaces.Discrete):
             0 indicate empty space
     '''
 
-    def __init__(self, w):
-        self.n = np.square(w)
+    def __init__(self, width):
+        self.n = width * width
         self.invalid_mask = np.zeros(self.n, dtype=np.int32)
 
     def sample(self):
@@ -106,7 +106,7 @@ class GomokuEnv(gym.Env):
         shape = (self.board_size, self.board_size, 2)
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
         # One action for each board position
-        self.action_space = DiscreteWrapper2d(self.board_size**2)
+        self.action_space = DiscreteWrapper2d(self.board_size)
 
         # Keep track of the moves
         self.moves = []
