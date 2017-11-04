@@ -11,8 +11,6 @@ class AdversarialEnv:
         self.__env = gym.make(environment_id)
         self.__opponent_policy = opponent_policy
 
-        self.reset()
-
     @property
     def opponent_policy(self):
         return self.__opponent_policy
