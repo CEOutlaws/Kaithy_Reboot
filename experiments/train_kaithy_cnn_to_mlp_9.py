@@ -19,9 +19,9 @@ def main():
     val_env = gym.make('Gomoku9x9-training-camp-v0', val_opponent_policy)
     # Enabling layer_norm here is import for parameter space noise!
     model = deepq.models.cnn_to_mlp(
-        convs=[(64, 3, 1), (64, 3, 1), (64, 3, 1), (64, 3, 1),
-               (64, 3, 1), (64, 3, 1), (64, 3, 1), (64, 3, 1)],
-        hiddens=[64]
+        convs=[(256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1),
+               (256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1)],
+        hiddens=[256]
     )
     act = deepq.learn(
         env=env,
