@@ -69,6 +69,8 @@ def main():
 
     sess = tf.Session()
 
+    observations = []
+
     for i in range(2):
         observation = env.reset()
         done = None
@@ -76,16 +78,17 @@ def main():
         while not done:
             action = sess.run(output_actions, feed_dict={
                 obs_ph: observation[None]})[0]
-            # action = env.action_space.sample()  # sample without replacement
             observation, reward, done, info = env.step(action)
             env.render()
+            observations.append(observation)
 
-            # print(sess.run(output_actions, feed_dict={
-            #       obs_ph: observation[None],
-            #       invalid_mask_ph: env.action_space.invalid_mask[None]}))
         print(reward)
         env.swap_role()
         print("\n----SWAP----\n")
+
+    actions = sess.run(output_actions, feed_dict={
+        obs_ph: observations})
+    print(actions)
 
 
 if __name__ == "__main__":
