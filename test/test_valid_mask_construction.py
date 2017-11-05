@@ -23,8 +23,6 @@ def main():
 
     obs_ph = tf.placeholder(
         dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
-    tf.image.rgb_to_grayscale
-    # Compute q_values
 
     if deterministic_actions_filter:
         invalid_masks = tf.reduce_sum(obs_ph, axis=3)
