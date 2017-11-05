@@ -134,7 +134,8 @@ def default_param_noise_filter(var):
     return False
 
 
-def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None):
+def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None,
+              random_filter=False, deterministic_filter=False):
     """Creates the act function:
 
     Parameters
@@ -207,7 +208,8 @@ def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None):
         return act
 
 
-def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None, param_noise_filter_func=None):
+def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None,
+                               param_noise_filter_func=None, random_filter=False, deterministic_filter=False):
     """Creates the act function with support for parameter space noise exploration (https://arxiv.org/abs/1706.01905):
 
     Parameters
@@ -360,7 +362,7 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
         return act
 
 
-def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=None, gamma=1.0,
+def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=None, gamma=1.0, deterministic_filter=False, random_filter=False,
                 double_q=True, scope="deepq", reuse=None, param_noise=False, param_noise_filter_func=None):
     """Creates the train function:
 
@@ -417,10 +419,10 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
     """
     if param_noise:
         act_f = build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope=scope, reuse=reuse,
-                                           param_noise_filter_func=param_noise_filter_func)
+                                           param_noise_filter_func=param_noise_filter_func, deterministic_filter=deterministic_filter, random_filter=random_filter)
     else:
         act_f = build_act(make_obs_ph, q_func, num_actions,
-                          scope=scope, reuse=reuse)
+                          scope=scope, reuse=reuse, deterministic_filter=deterministic_filter, random_filter=random_filter)
 
     with tf.variable_scope(scope, reuse=reuse):
         # set up placeholders
