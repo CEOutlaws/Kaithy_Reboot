@@ -20,7 +20,7 @@ def main():
     model = deepq.models.cnn_to_mlp(
         convs=[(256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1),
                (256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1)],
-        hiddens=[256, 256]
+        hiddens=[256]
     )
     act = deepq.learn(
         env,
