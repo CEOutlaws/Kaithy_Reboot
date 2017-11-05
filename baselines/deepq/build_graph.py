@@ -433,7 +433,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
             U.data_type, [None], name="weight")
 
         if deterministic_filter:
-            invalid_masks = build_invalid_masks(obs_t_input.get())
+            invalid_masks_tp1 = build_invalid_masks(obs_tp1_input.get())
 
         # q network evaluation
         q_t = q_func(obs_t_input.get(), num_actions, scope="q_func",
@@ -456,7 +456,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
 
             if deterministic_filter:
                 q_tp1_using_online_net = build_q_filter(
-                    q_tp1_using_online_net, invalid_masks)
+                    q_tp1_using_online_net, invalid_masks_tp1)
 
             q_tp1_best_using_online_net = tf.argmax(
                 q_tp1_using_online_net, 1, output_type=U.index_type)
@@ -464,7 +464,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
                 q_tp1 * tf.one_hot(q_tp1_best_using_online_net, num_actions, dtype=U.data_type), 1)
         else:
             if deterministic_filter:
-                q_tp1 = build_q_filter(q_tp1, invalid_masks)
+                q_tp1 = build_q_filter(q_tp1, invalid_masks_tp1)
 
             q_tp1_best = tf.reduce_max(q_tp1, axis=1)
         q_tp1_best_masked = (1.0 - done_mask_ph) * q_tp1_best
