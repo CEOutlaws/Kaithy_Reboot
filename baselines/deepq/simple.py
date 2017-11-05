@@ -125,7 +125,9 @@ def learn(env,
           prioritized_replay_eps=1e-6,
           num_cpu=16,
           param_noise=False,
-          callback=None):
+          callback=None,
+          deterministic_filter=False,
+          random_filter=False):
     """Train a deepq model.
 
     Parameters
@@ -225,7 +227,9 @@ def learn(env,
         gamma=gamma,
         grad_norm_clipping=10,
         double_q=double_q,
-        param_noise=param_noise
+        param_noise=param_noise,
+        deterministic_filter=deterministic_filter,
+        random_filter=random_filter
     )
 
     def opponent_policy(curr_state, prev_state, prev_action):
