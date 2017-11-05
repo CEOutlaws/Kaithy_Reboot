@@ -97,6 +97,28 @@ import tensorflow as tf
 import baselines.common.tf_util as U
 
 
+def build_q_filter(q_values, invalid_masks):
+    q_values_worst = tf.reduce_min(q_values, axis=1)
+    return invalid_masks * (q_values_worst - 1.0) + \
+        (1.0 - invalid_masks) * q_values
+
+
+def build_ramdom_filter(deterministic_actions, random_actions, invalid_masks):
+    def get_elements(data, indices):
+        indeces = tf.range(0, tf.shape(indices)[
+            0]) * data.shape[1] + indices
+        return tf.gather(tf.reshape(data, [-1]), indeces)
+    is_invalid_random_actions = get_elements(
+        invalid_masks, random_actions)
+    return tf.where(tf.equal(
+        is_invalid_random_actions, 1.), deterministic_actions, random_actions)
+
+
+def build_invalid_masks(obs):
+    return tf.contrib.layers.flatten(
+        tf.reduce_sum(obs, axis=3))
+
+
 def default_param_noise_filter(var):
     if var not in tf.trainable_variables():
         # We never perturb non-trainable vars.
@@ -147,15 +169,28 @@ def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None):
         stochastic_ph = tf.placeholder(tf.bool, (), name="stochastic")
         update_eps_ph = tf.placeholder(U.data_type, (), name="update_eps")
 
+        if deterministic_filter or random_filter:
+            invalid_masks = build_invalid_masks(observations_ph)
+
         eps = tf.get_variable(
             "eps", (), dtype=U.data_type, initializer=tf.constant_initializer(0))
 
         q_values = q_func(observations_ph.get(), num_actions, scope="q_func")
+
+        if deterministic_filter:
+            q_values = build_q_filter(
+                q_values, invalid_masks)
+
         deterministic_actions = tf.argmax(q_values, axis=1)
 
         batch_size = tf.shape(observations_ph.get())[0]
         random_actions = tf.random_uniform(
             tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=tf.int64)
+
+        if random_filter:
+            random_actions = build_ramdom_filter(
+                deterministic_actions, random_actions, invalid_masks)
+
         chose_random = tf.random_uniform(
             tf.stack([batch_size]), minval=0, maxval=1, dtype=U.data_type) < eps
         stochastic_actions = tf.where(
@@ -218,6 +253,9 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
             tf.bool, (), name="update_param_noise_scale")
         reset_ph = tf.placeholder(tf.bool, (), name="reset")
 
+        if deterministic_filter or random_filter:
+            invalid_masks = build_invalid_masks(observations_ph)
+
         eps = tf.get_variable(
             "eps", (), initializer=tf.constant_initializer(0))
         param_noise_scale = tf.get_variable(
@@ -231,6 +269,10 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
         # Perturbable Q used for the actual rollout.
         q_values_perturbed = q_func(
             observations_ph.get(), num_actions, scope="perturbed_q_func")
+
+        if deterministic_filter:
+            q_values_perturbed = build_q_filter(
+                q_values_perturbed, invalid_masks)
         # We have to wrap this code into a function due to the way tf.cond() works. See
         # https://stackoverflow.com/questions/37063952/confused-by-the-behavior-of-tf-cond for
         # a more detailed discussion.
@@ -258,6 +300,11 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
         # is too big, reduce scale of perturbation, otherwise increase.
         q_values_adaptive = q_func(
             observations_ph.get(), num_actions, scope="adaptive_q_func")
+
+        if deterministic_filter:
+            q_values_adaptive = build_q_filter(
+                q_values_adaptive, invalid_masks)
+
         perturb_for_adaption = perturb_vars(
             original_scope="q_func", perturbed_scope="adaptive_q_func")
         kl = tf.reduce_sum(tf.nn.softmax(q_values) * (tf.log(tf.nn.softmax(q_values)
@@ -283,6 +330,11 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
         batch_size = tf.shape(observations_ph.get())[0]
         random_actions = tf.random_uniform(
             tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=tf.int64)
+
+        if random_filter:
+            random_actions = build_ramdom_filter(
+                deterministic_actions, random_actions, invalid_masks)
+
         chose_random = tf.random_uniform(
             tf.stack([batch_size]), minval=0, maxval=1, dtype=U.data_type) < eps
         stochastic_actions = tf.where(
@@ -380,6 +432,9 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         importance_weights_ph = tf.placeholder(
             U.data_type, [None], name="weight")
 
+        if deterministic_filter:
+            invalid_masks = build_invalid_masks(obs_t_input)
+
         # q network evaluation
         q_t = q_func(obs_t_input.get(), num_actions, scope="q_func",
                      reuse=True)  # reuse parameters from act
@@ -398,10 +453,18 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         if double_q:
             q_tp1_using_online_net = q_func(
                 obs_tp1_input.get(), num_actions, scope="q_func", reuse=True)
+
+            if deterministic_filter:
+                q_tp1_using_online_net = build_q_filter(
+                    q_tp1_using_online_net, invalid_masks)
+
             q_tp1_best_using_online_net = tf.argmax(q_tp1_using_online_net, 1)
             q_tp1_best = tf.reduce_sum(
                 q_tp1 * tf.one_hot(q_tp1_best_using_online_net, num_actions, dtype=U.data_type), 1)
         else:
+            if deterministic_filter:
+                q_tp1 = build_q_filter(q_tp1, invalid_masks)
+
             q_tp1_best = tf.reduce_max(q_tp1, axis=1)
         q_tp1_best_masked = (1.0 - done_mask_ph) * q_tp1_best
 
