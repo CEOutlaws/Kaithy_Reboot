@@ -27,7 +27,7 @@ def main():
     # Compute q_values
 
     if deterministic_actions_filter:
-        invalid_masks = tf.reduce_sum(obs_ph, axis=3, keep_dims=True)
+        invalid_masks = tf.reduce_sum(obs_ph, axis=3)
 
     sess = tf.Session()
 
@@ -42,8 +42,6 @@ def main():
             observation, reward, done, info = env.step(action)
             observations.append(observation)
             env.render()
-    print(observations)
-    print(observations[0].shape)
     out = sess.run(invalid_masks, feed_dict={
         obs_ph: observations})
     print(out)
