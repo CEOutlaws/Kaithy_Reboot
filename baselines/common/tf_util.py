@@ -8,6 +8,7 @@ import collections
 
 data_type = tf.float32
 index_type = tf.int32
+
 # ================================================================
 # Make consistent with numpy
 # ================================================================
