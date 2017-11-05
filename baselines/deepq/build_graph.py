@@ -171,7 +171,7 @@ def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None,
         update_eps_ph = tf.placeholder(U.data_type, (), name="update_eps")
 
         if deterministic_filter or random_filter:
-            invalid_masks = build_invalid_masks(observations_ph)
+            invalid_masks = build_invalid_masks(observations_ph.get())
 
         eps = tf.get_variable(
             "eps", (), dtype=U.data_type, initializer=tf.constant_initializer(0))
@@ -182,11 +182,11 @@ def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None,
             q_values = build_q_filter(
                 q_values, invalid_masks)
 
-        deterministic_actions = tf.argmax(q_values, axis=1)
+        deterministic_actions = tf.argmax(q_values, axis=1, dtype=U.index_type)
 
         batch_size = tf.shape(observations_ph.get())[0]
         random_actions = tf.random_uniform(
-            tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=tf.int64)
+            tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=U.index_type)
 
         if random_filter:
             random_actions = build_ramdom_filter(
@@ -256,7 +256,7 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
         reset_ph = tf.placeholder(tf.bool, (), name="reset")
 
         if deterministic_filter or random_filter:
-            invalid_masks = build_invalid_masks(observations_ph)
+            invalid_masks = build_invalid_masks(observations_ph.get())
 
         eps = tf.get_variable(
             "eps", (), initializer=tf.constant_initializer(0))
@@ -303,10 +303,6 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
         q_values_adaptive = q_func(
             observations_ph.get(), num_actions, scope="adaptive_q_func")
 
-        if deterministic_filter:
-            q_values_adaptive = build_q_filter(
-                q_values_adaptive, invalid_masks)
-
         perturb_for_adaption = perturb_vars(
             original_scope="q_func", perturbed_scope="adaptive_q_func")
         kl = tf.reduce_sum(tf.nn.softmax(q_values) * (tf.log(tf.nn.softmax(q_values)
@@ -331,7 +327,7 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
         deterministic_actions = tf.argmax(q_values_perturbed, axis=1)
         batch_size = tf.shape(observations_ph.get())[0]
         random_actions = tf.random_uniform(
-            tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=tf.int64)
+            tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=U.index_type)
 
         if random_filter:
             random_actions = build_ramdom_filter(
