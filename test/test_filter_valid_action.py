@@ -34,13 +34,12 @@ def main():
 
     q_values = tf.constant(q_values_random, dtype=tf.float32)
 
-    invalid_mask_ph = tf.placeholder(dtype=tf.float32)
     if deterministic_filter:
         invalid_masks = tf.contrib.layers.flatten(
-            tf.reduce_sum(obs_ph, axis=3), [-1])
+            tf.reduce_sum(obs_ph, axis=3))
         q_values_worst = tf.reduce_min(q_values, axis=1)
-        q_values = invalid_mask_ph * (q_values_worst - 1.0) + \
-            (1.0 - invalid_mask_ph) * q_values
+        q_values = invalid_masks * (q_values_worst - 1.0) + \
+            (1.0 - invalid_masks) * q_values
 
     deterministic_actions = tf.argmax(q_values, axis=1, output_type=tf.int32)
     batch_size = tf.shape(obs_ph)[0]
@@ -53,8 +52,8 @@ def main():
             indeces = tf.range(0, tf.shape(indices)[
                 0]) * data.shape[1] + indices
             return tf.gather(tf.reshape(data, [-1]), indeces)
-        is_invalid_random_actions_actions = get_elements(
-            invalid_mask_ph, random_actions)
+        is_invalid_random_actions = get_elements(
+            invalid_masks, random_actions)
         random_actions = tf.where(tf.equal(
             is_invalid_random_actions, 1.), deterministic_actions, random_actions)
 
@@ -74,8 +73,7 @@ def main():
 
         while not done:
             action = sess.run(output_actions, feed_dict={
-                obs_ph: observation[None],
-                invalid_mask_ph: env.action_space.invalid_mask[None]})[0]
+                obs_ph: observation[None]})[0]
             # action = env.action_space.sample()  # sample without replacement
             observation, reward, done, info = env.step(action)
             env.render()
