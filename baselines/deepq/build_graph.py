@@ -182,7 +182,8 @@ def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None,
             q_values = build_q_filter(
                 q_values, invalid_masks)
 
-        deterministic_actions = tf.argmax(q_values, axis=1, dtype=U.index_type)
+        deterministic_actions = tf.argmax(
+            q_values, axis=1, output_type=U.index_type)
 
         batch_size = tf.shape(observations_ph.get())[0]
         random_actions = tf.random_uniform(
@@ -324,7 +325,8 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
                                                                                  lambda: update_param_noise_threshold_ph, lambda: param_noise_threshold))
 
         # Put everything together.
-        deterministic_actions = tf.argmax(q_values_perturbed, axis=1)
+        deterministic_actions = tf.argmax(
+            q_values_perturbed, axis=1, output_type=U.index_type)
         batch_size = tf.shape(observations_ph.get())[0]
         random_actions = tf.random_uniform(
             tf.stack([batch_size]), minval=0, maxval=num_actions, dtype=U.index_type)
@@ -431,7 +433,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
             U.data_type, [None], name="weight")
 
         if deterministic_filter:
-            invalid_masks = build_invalid_masks(obs_t_input)
+            invalid_masks = build_invalid_masks(obs_t_input.get())
 
         # q network evaluation
         q_t = q_func(obs_t_input.get(), num_actions, scope="q_func",
@@ -456,7 +458,8 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
                 q_tp1_using_online_net = build_q_filter(
                     q_tp1_using_online_net, invalid_masks)
 
-            q_tp1_best_using_online_net = tf.argmax(q_tp1_using_online_net, 1)
+            q_tp1_best_using_online_net = tf.argmax(
+                q_tp1_using_online_net, 1, output_type=U.index_type)
             q_tp1_best = tf.reduce_sum(
                 q_tp1 * tf.one_hot(q_tp1_best_using_online_net, num_actions, dtype=U.data_type), 1)
         else:
