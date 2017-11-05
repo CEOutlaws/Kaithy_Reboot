@@ -28,7 +28,7 @@ def main():
         val_env=val_env,
         q_func=model,
         lr=1e-4,
-        max_timesteps=2000000,
+        max_timesteps=int(sys.argv[1]),
         buffer_size=10000,
         batch_size=32,
         exploration_fraction=0.95,
