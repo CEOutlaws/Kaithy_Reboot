@@ -39,7 +39,9 @@ def main():
         learning_starts=1000,
         target_network_update_freq=1000,
         gamma=0.99,
-        prioritized_replay=True
+        prioritized_replay=True,
+        deterministic_filter=True,
+        random_filter=True,
     )
     print("Saving model to kaithy_cnn_to_mlp_9_model.pkl")
     act.save("kaithy_cnn_to_mlp_9_model.pkl")
