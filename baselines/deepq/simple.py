@@ -250,6 +250,8 @@ def learn(env,
         'make_obs_ph': make_obs_ph,
         'q_func': q_func,
         'num_actions': env.action_space.n,
+        'random_filter': random_filter,
+        'deterministic_filter': deterministic_filter,
     }
 
     # Create the replay buffer
