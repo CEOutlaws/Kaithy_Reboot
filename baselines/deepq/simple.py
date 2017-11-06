@@ -387,6 +387,7 @@ def learn(env,
                         saved_num_win, num_win))
                     U.save_state(model_file)
                     model_saved = True
+                    saved_time_step = t
                     saved_mean_reward = num_win
 
             # if (checkpoint_freq is not None and t > learning_starts and
@@ -400,8 +401,8 @@ def learn(env,
             #         saved_mean_reward = mean_100ep_reward
         if model_saved:
             if print_freq is not None:
-                logger.log("Restored model with mean reward: {}".format(
-                    saved_mean_reward))
+                logger.log("Restored model at time step {} with mean reward: {}".format(
+                    saved_time_step, saved_mean_reward))
             U.load_state(model_file)
 
     return ActWrapper(act, act_params)
