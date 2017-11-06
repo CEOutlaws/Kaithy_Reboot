@@ -14,6 +14,7 @@ from baselines import logger
 from baselines.common.schedules import LinearSchedule
 from baselines import deepq
 from baselines.deepq.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+from baselines.deepq.opponent import Opponent
 
 sys.setrecursionlimit(20000)
 
@@ -265,32 +266,8 @@ def learn(env,
     saved_mean_reward = None
     saved_num_win = 1
 
-    class Opponent(object):
-        def __init__(self):
-            self.old_obs = None
-            self.old_action = None
-            self.__obs = None
-
-        def policy(self, curr_state, prev_state, prev_action):
-            '''
-            Define policy for opponent here
-            '''
-            self.__obs = curr_state.encode()
-
-            if self.old_obs is not None:
-                replay_buffer.add(self.old_obs, self.old_action,
-                                  0, self.__obs, 0)
-            # Get opponent action
-            if flatten_obs:
-                self.__obs = self.__obs.flatten()
-            action = act(self.__obs[None])[0]
-
-            self.old_obs = self.__obs
-            self.old_action = action
-            return action
-
-    opponent = Opponent()
-
+    opponent = Opponent(flatten_obs=flatten_obs, act=act,
+                        replay_buffer=replay_buffer)
     env.opponent_policy = opponent.policy
 
     obs = env.reset()
