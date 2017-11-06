@@ -267,8 +267,8 @@ def learn(env,
 
     class Opponent(object):
         def __init__(self):
-            self.__old_obs = None
-            self.__old_action = None
+            self.old_obs = None
+            self.old_action = None
             self.__obs = None
 
         def policy(self, curr_state, prev_state, prev_action):
@@ -277,16 +277,16 @@ def learn(env,
             '''
             self.__obs = curr_state.encode()
 
-            if self.__old_obs is not None:
-                replay_buffer.add(self.__old_obs, self.__old_action,
+            if self.old_obs is not None:
+                replay_buffer.add(self.old_obs, self.old_action,
                                   0, self.__obs, 0)
             # Get opponent action
             if flatten_obs:
                 self.__obs = self.__obs.flatten()
             action = act(self.__obs[None])[0]
 
-            self.__old_obs = self.__obs
-            self.__old_action = action
+            self.old_obs = self.__obs
+            self.old_action = action
             return action
 
     opponent = Opponent()
@@ -337,6 +337,8 @@ def learn(env,
 
             episode_rewards[-1] += rew
             if done:
+                replay_buffer.add(opponent.old_obs,
+                                  opponent.old_action, -rew, obs, float(done))
                 obs = env.reset()
                 episode_rewards.append(0.0)
                 reset = True
