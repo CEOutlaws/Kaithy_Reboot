@@ -116,7 +116,7 @@ def build_ramdom_filter(deterministic_actions, random_actions, invalid_masks):
 
 def build_invalid_masks(obs):
     return tf.contrib.layers.flatten(
-        tf.reduce_sum(obs[:, :, :, 0:2], axis=3))
+        tf.reduce_sum(obs[:, :, :, 1:3], axis=3))
 
 
 def default_param_noise_filter(var):

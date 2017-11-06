@@ -49,11 +49,8 @@ class GomokuState(object):
         board_state_iter = np.nditer(
             self.board.board_state, flags=['multi_index'])
         while not board_state_iter.finished:
-            if (board_state_iter[0] == 1):
-                obs_w_w_3[board_state_iter.multi_index][0] = 1
-            elif (obs_w_w_3[0] == 2):
-                obs_w_w_3[board_state_iter.multi_index][1] = 1
-            obs_w_w_3[board_state_iter.multi_index][2] = 1
+            obs_w_w_3[board_state_iter.multi_index][board_state_iter[0]] = 1
+            obs_w_w_3[board_state_iter.multi_index][0] = 1
 
             board_state_iter.iternext()
 
