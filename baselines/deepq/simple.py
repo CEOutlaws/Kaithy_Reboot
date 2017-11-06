@@ -81,7 +81,7 @@ def load(path, num_cpu=16):
     return ActWrapper.load(path, num_cpu=num_cpu)
 
 
-def validate(env, act):
+def validate(env, act, kwargs):
     num_episodes = 100
     win_count = 0
     lose_count = 0
@@ -89,7 +89,8 @@ def validate(env, act):
     for i in range(num_episodes):
         obs = env.reset()
         while True:
-            action = act(obs[None])[0]
+            action = act(obs[None],
+                         stochastic=True, **kwargs)[0]
             obs, reward, done, info = env.step(action)
             if done:
                 if reward == 1.:
@@ -363,7 +364,7 @@ def learn(env,
                 start_clock = time.clock()
 
             if done and val_env is not None and val_freq is not None and len(episode_rewards) % val_freq == 0:
-                num_win, num_lose, num_draw = validate(val_env, act)
+                num_win, num_lose, num_draw = validate(val_env, act, **kwargs)
                 if print_freq is not None:
                     logger.record_tabular(
                         "Execution time", time.time() - start_time)
@@ -384,6 +385,9 @@ def learn(env,
                     saved_time_step = t
                     saved_num_win = num_win
                     saved_num_lose = num_lose
+                else:
+                    logger.log("Nothing improve keep saved state at time step {} with num win-lose: {}-{}".format(
+                        saved_time_step, saved_num_win, saved_num_lose))
 
             # if (checkpoint_freq is not None and t > learning_starts and
             #         num_episodes > 100 and t % checkpoint_freq == 0):
