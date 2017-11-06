@@ -40,6 +40,23 @@ class GomokuState(object):
         '''
         return GomokuState(self.board.play(action, self.color), gomoku_util.other_color(self.color))
 
+    def encode(self):
+        '''Return: np array
+            np.array(board_size, board_size, 3): state observation of the board
+        '''
+        obs_w_w_3 = np.zeros((self.size, self.size, 3), dtype=np.int32)
+        board_state_iter = np.nditer(
+            self.board.board_state, flags=['multi_index'])
+        while not board_state_iter.finished:
+            if (board_state_iter[0] == 1):
+                obs_w_w_3[board_state_iter.multi_index][0] = 1
+            elif (obs_w_w_3[0] == 2):
+                obs_w_w_3[board_state_iter.multi_index][1] = 1
+            obs_w_w_3[board_state_iter.multi_index][2] = 1
+            board_state_iter.iternext()
+
+        return obs_w_w_3
+
     def __repr__(self):
         '''stream of board shape output'''
         # To Do: Output shape * * * o o
@@ -144,7 +161,7 @@ class GomokuEnv(gym.Env):
         self.action_space = DiscreteWrapper2d(self.board_size)
 
         self.done = self.state.board.is_terminal()
-        return self.state.board.encode()
+        return self.state.encode()
 
     def _close(self):
         self.opponent_policy = None
@@ -195,12 +212,12 @@ class GomokuEnv(gym.Env):
         assert self.state.color == self.player_color  # it's the player's turn
         # If already terminal, then don't do anything
         if self.done:
-            return self.state.board.encode(), 0., True, {'state': self.state}
+            return self.state.encode(), 0., True, {'state': self.state}
 
         # check if it's illegal move
         # if the space is fill
         if self.action_space.invalid_mask[action]:
-            return self.state.board.encode(), -1., True, {'state': self.state}
+            return self.state.encode(), -1., True, {'state': self.state}
 
         # Player play
         prev_state = self.state
@@ -216,7 +233,7 @@ class GomokuEnv(gym.Env):
             # check if it's illegal move
             # if the space is fill
             if self.action_space.invalid_mask[opponent_action]:
-                return self.state.board.encode(), 0., True, {'state': self.state}
+                return self.state.encode(), 0., True, {'state': self.state}
 
             self.state = self.state.act(opponent_action)
             self.moves.append(self.state.board.last_coord)
@@ -228,7 +245,7 @@ class GomokuEnv(gym.Env):
         # Reward: if nonterminal, there is no 5 in a row, then the reward is 0
         if not self.state.board.is_terminal():
             self.done = False
-            return self.state.board.encode(), 0., False, {'state': self.state}
+            return self.state.encode(), 0., False, {'state': self.state}
 
         # We're in a terminal state. Reward is 1 if won, -1 if lost
         assert self.state.board.is_terminal(), 'The game is terminal'
@@ -244,7 +261,7 @@ class GomokuEnv(gym.Env):
             # check if player_color is the win_color
             player_wins = (self.player_color == win_color)
             reward = 1. if player_wins else -1.
-        return self.state.board.encode(), reward, True, {'state': self.state}
+        return self.state.encode(), reward, True, {'state': self.state}
 
     def _exec_opponent_play(self, curr_state, prev_state, prev_action):
         '''There is no resign in gomoku'''
@@ -372,21 +389,3 @@ class Board(object):
             out += line
         out += (label_boundry + label_letters)
         return out
-
-    def encode(self):
-        '''Return: np array
-            np.array(board_size, board_size, 1): state observation of the board
-        '''
-        # obs_w_w_1 = np.stack((self.board_state,), axis=-1)
-
-        obs_w_w_3 = np.zeros((self.size, self.size, 3), dtype=np.int32)
-        board_state_iter = np.nditer(self.board_state, flags=['multi_index'])
-        while not board_state_iter.finished:
-            if (board_state_iter[0] == 1):
-                obs_w_w_3[board_state_iter.multi_index][0] = 1
-            elif (obs_w_w_3[0] == 2):
-                obs_w_w_3[board_state_iter.multi_index][1] = 1
-            obs_w_w_3[board_state_iter.multi_index][2] = 1
-            board_state_iter.iternext()
-
-        return obs_w_w_3
