@@ -232,20 +232,6 @@ def learn(env,
         random_filter=random_filter
     )
 
-    def opponent_policy(curr_state, prev_state, prev_action):
-        '''
-        Define policy for opponent here
-        '''
-        # Opponent observation = inverted player observation
-        opponent_obs = np.roll(curr_state.board.encode(), 1, axis=2)
-
-        # Get opponent action
-        if flatten_obs:
-            opponent_obs = opponent_obs.flatten()
-        action = act(opponent_obs[None])[0]
-
-        return action
-    env.opponent_policy = opponent_policy
     act_params = {
         'make_obs_ph': make_obs_ph,
         'q_func': q_func,
@@ -278,6 +264,35 @@ def learn(env,
     episode_rewards = [0.0]
     saved_mean_reward = None
     saved_num_win = 1
+
+    class Opponent(object):
+        def __init__(self):
+            self.__old_obs = None
+            self.__old_action = None
+            self.__obs = None
+
+        def policy(self, curr_state, prev_state, prev_action):
+            '''
+            Define policy for opponent here
+            '''
+            self.__obs = curr_state.encode()
+
+            if self.__old_obs is not None:
+                replay_buffer.add(self.__old_obs, self.__old_action,
+                                  0, self.__obs, 0)
+            # Get opponent action
+            if flatten_obs:
+                self.__obs = self.__obs.flatten()
+            action = act(self.__obs[None])[0]
+
+            self.__old_obs = self.__obs
+            self.__old_action = action
+            return action
+
+    opponent = Opponent()
+
+    env.opponent_policy = opponent.policy
+
     obs = env.reset()
     reset = True
     start_time = time.time()
