@@ -50,7 +50,7 @@ class GomokuState(object):
             self.board.board_state, flags=['multi_index'])
         while not board_state_iter.finished:
             obs_w_w_3[board_state_iter.multi_index][board_state_iter[0]] = 1
-            obs_w_w_3[board_state_iter.multi_index][0] = 1
+            obs_w_w_3[board_state_iter.multi_index][0] = gomoku_util.color_dict[self.color] - 1
 
             board_state_iter.iternext()
 
