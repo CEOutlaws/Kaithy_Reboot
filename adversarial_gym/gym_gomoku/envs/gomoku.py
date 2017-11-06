@@ -103,7 +103,7 @@ class GomokuEnv(gym.Env):
 
         # Observation space on board
         # board_size * board_size
-        shape = (self.board_size, self.board_size, 2)
+        shape = (self.board_size, self.board_size, 3)
         self.observation_space = spaces.Box(np.zeros(shape), np.ones(shape))
         # One action for each board position
         self.action_space = DiscreteWrapper2d(self.board_size)
@@ -379,13 +379,14 @@ class Board(object):
         '''
         # obs_w_w_1 = np.stack((self.board_state,), axis=-1)
 
-        obs_w_w_2 = np.zeros((self.size, self.size, 2), dtype=np.int32)
+        obs_w_w_3 = np.zeros((self.size, self.size, 3), dtype=np.int32)
         board_state_iter = np.nditer(self.board_state, flags=['multi_index'])
         while not board_state_iter.finished:
             if (board_state_iter[0] == 1):
-                obs_w_w_2[board_state_iter.multi_index][0] = 1
-            elif (board_state_iter[0] == 2):
-                obs_w_w_2[board_state_iter.multi_index][1] = 1
+                obs_w_w_3[board_state_iter.multi_index][0] = 1
+            elif (obs_w_w_3[0] == 2):
+                obs_w_w_3[board_state_iter.multi_index][1] = 1
+            obs_w_w_3[board_state_iter.multi_index][2] = 1
             board_state_iter.iternext()
 
-        return obs_w_w_2
+        return obs_w_w_3
