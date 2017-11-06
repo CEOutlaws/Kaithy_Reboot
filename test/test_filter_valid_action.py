@@ -31,12 +31,12 @@ def main():
 
     if deterministic_filter or random_filter:
         invalid_masks = tf.contrib.layers.flatten(
-            tf.reduce_sum(obs_ph, axis=3))
+            tf.reduce_sum(obs_ph[:, :, :, 1:3], axis=3))
 
     if deterministic_filter:
         q_values_worst = tf.reduce_min(q_values, axis=1, keep_dims=True)
-        q_values = tf.where(tf.equal(
-            invalid_masks, 1.), q_values_worst - 1.0, q_values)
+        # q_values = tf.where(tf.equal(
+        #     invalid_masks, 1.), q_values_worst - 1.0, q_values)
         q_values = invalid_masks * (q_values_worst - 1.0) + \
             (1.0 - invalid_masks) * q_values
 
