@@ -44,7 +44,8 @@ class GomokuState(object):
         '''Return: np array
             np.array(board_size, board_size, 3): state observation of the board
         '''
-        obs_w_w_3 = np.zeros((self.size, self.size, 3), dtype=np.int32)
+        obs_w_w_3 = np.zeros(
+            (self.board.size, self.board.size, 3), dtype=np.int32)
         board_state_iter = np.nditer(
             self.board.board_state, flags=['multi_index'])
         while not board_state_iter.finished:
@@ -53,6 +54,7 @@ class GomokuState(object):
             elif (obs_w_w_3[0] == 2):
                 obs_w_w_3[board_state_iter.multi_index][1] = 1
             obs_w_w_3[board_state_iter.multi_index][2] = 1
+
             board_state_iter.iternext()
 
         return obs_w_w_3
