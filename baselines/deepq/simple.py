@@ -90,7 +90,7 @@ def validate(env, act, kwargs):
         obs = env.reset()
         while True:
             action = act(obs[None],
-                         stochastic=True, **kwargs)[0]
+                         stochastic=False, **kwargs)[0]
             obs, reward, done, info = env.step(action)
             if done:
                 if reward == 1.:
