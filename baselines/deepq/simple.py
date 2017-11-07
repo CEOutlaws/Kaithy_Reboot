@@ -129,7 +129,8 @@ def learn(env,
           param_noise=False,
           callback=None,
           deterministic_filter=False,
-          random_filter=False):
+          random_filter=False,
+          state_file=None):
     """Train a deepq model.
 
     Parameters

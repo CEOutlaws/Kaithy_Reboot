@@ -56,6 +56,7 @@ def train(board_size, max_timesteps):
         prioritized_replay=True,
         deterministic_filter=True,
         random_filter=True,
+        state_file='kaithy_cnn_to_mlp_{}_model.pkl'.format(board_size),
     )
     print('Saving model to kaithy_cnn_to_mlp_{}_model.pkl'.format(
         board_size))
