@@ -6,7 +6,9 @@ from template.gomoku import enjoy
 
 def main():
     try:
-        enjoy(int(sys.argv[1]))
+        enjoy(
+            board_size=int(sys.argv[1])
+        )
     except Exception:
         print('Usage:')
         print('\tcd ./experiments')

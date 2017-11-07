@@ -6,7 +6,10 @@ from template.gomoku import train
 
 def main():
     try:
-        train(int(sys.argv[1]), int(sys.argv[2]))
+        train(
+            board_size=int(sys.argv[1]),
+            max_timesteps=int(sys.argv[2])
+        )
     except Exception as e:
         print('Usage:')
         print('\tcd ./experiments')
