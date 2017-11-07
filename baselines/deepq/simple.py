@@ -382,7 +382,7 @@ def learn(env,
                 start_clock = time.clock()
 
             if done and val_env is not None and val_freq is not None and len(episode_rewards) % val_freq == 0:
-                num_win, num_lose, num_draw = validate(val_env, act, **kwargs)
+                num_win, num_lose, num_draw = validate(val_env, act, kwargs)
                 if print_freq is not None:
                     logger.record_tabular(
                         "Execution time", time.time() - start_time)
