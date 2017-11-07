@@ -5,6 +5,20 @@ from baselines import deepq
 
 
 def train(board_size, max_timesteps):
+    """train gomoku AI play board whose size is board_size x board_size.
+
+    Parameters
+    ----------
+    board_size: int
+        Size of board in one dimension, example:
+        board_size = 9 --> board have size 9x9
+    max_timesteps: int
+        Number of training step
+
+    Returns
+    -------
+    None
+    """
     env = gym.make(
         'Gomoku{}x{}-training-camp-v0'.format(board_size, board_size))
 
@@ -48,6 +62,18 @@ def train(board_size, max_timesteps):
 
 
 def enjoy(board_size):
+    """enjoy trained gomoku AI play board whose size is board_size x board_size.
+
+    Parameters
+    ----------
+    board_size: int
+        Size of board in one dimension, example:
+        board_size = 9 --> board have size 9x9
+
+    Returns
+    -------
+    None
+    """
     env = gym.make('Gomoku{}x{}-training-camp-v0'.format(board_size,
                                                          board_size), val_opponent_policy)
     act = deepq.load("kaithy_cnn_to_mlp_{}_model.pkl".format(
