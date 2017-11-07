@@ -9,7 +9,7 @@ def main():
         train(int(sys.argv[1]), int(sys.argv[2]))
     except Exception as e:
         print('Usage:')
-        print('\tcd ./experients')
+        print('\tcd ./experiments')
         print('\tpython ./train_kaithy board_size max_time_step')
 
 
