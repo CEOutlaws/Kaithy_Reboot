@@ -275,9 +275,9 @@ def learn(env,
                 zipfile.ZipFile(
                     arc_path, 'r', zipfile.ZIP_DEFLATED).extractall(td)
                 U.load_state(os.path.join(td, "model"))
-            pass
+            print('Saved model is loaded, training is resume')
         except FileNotFoundError as e:
-            pass
+            print('No model to loaded, training start from scratch')
 
     update_target()
 
