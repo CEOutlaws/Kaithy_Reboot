@@ -301,14 +301,14 @@ def learn(env,
                 kwargs['reset'] = reset
                 kwargs['update_param_noise_threshold'] = update_param_noise_threshold
                 kwargs['update_param_noise_scale'] = True
-            if flatten_obs:
-                obs = obs.flatten()
+            # if flatten_obs:
+            #     obs = obs.flatten()
             action = act(np.array(obs)[None],
                          update_eps=update_eps, **kwargs)[0]
             reset = False
             new_obs, rew, done, _ = env.step(action)
-            if flatten_obs:
-                new_obs = new_obs.flatten()
+            # if flatten_obs:
+            #     new_obs = new_obs.flatten()
             # Store transition in the replay buffer.
             replay_buffer.add(obs, action, rew, new_obs, float(done))
             obs = new_obs
