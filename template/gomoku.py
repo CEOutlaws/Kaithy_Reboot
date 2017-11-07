@@ -91,3 +91,5 @@ def enjoy(board_size):
             env.render()
         print('Episode reward', episode_rew)
         input('Hit enter to play next match')
+        print('Swap color')
+        env.swap_role()
