@@ -262,6 +262,23 @@ def learn(env,
 
     # Initialize the parameters and copy them to the target network.
     U.initialize()
+
+    if state_file is not None:
+        try:
+            with open(state_file, "rb") as f:
+                model_data, act_params = dill.load(f)
+            with tempfile.TemporaryDirectory() as td:
+                arc_path = os.path.join(td, "packed.zip")
+                with open(arc_path, "wb") as f:
+                    f.write(model_data)
+
+                zipfile.ZipFile(
+                    arc_path, 'r', zipfile.ZIP_DEFLATED).extractall(td)
+                U.load_state(os.path.join(td, "model"))
+            pass
+        except FileNotFoundError as e:
+            pass
+
     update_target()
 
     episode_rewards = [0.0]
