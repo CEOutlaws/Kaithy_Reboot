@@ -50,7 +50,7 @@ def train(board_size, max_timesteps):
         train_freq=1,
         val_freq=1000,
         print_freq=100,
-        learning_starts=50000,
+        learning_starts=10000,
         target_network_update_freq=1000,
         gamma=0.99,
         prioritized_replay=True,
