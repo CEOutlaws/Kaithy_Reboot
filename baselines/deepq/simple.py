@@ -98,6 +98,7 @@ def validate(env, act, kwargs):
                 elif reward == -1.:
                     lose_count += 1
                 break
+        env.swap_role()
 
     return win_count, lose_count, num_episodes - win_count - lose_count
 
