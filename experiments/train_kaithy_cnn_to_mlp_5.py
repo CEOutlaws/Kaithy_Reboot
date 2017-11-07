@@ -5,6 +5,7 @@ import numpy as np
 
 import adversarial_gym as gym
 from baselines import deepq
+import config as cf
 
 
 def val_opponent_policy(curr_state, prev_state, prev_action):
@@ -27,21 +28,8 @@ def main():
         env=env,
         val_env=val_env,
         q_func=model,
-        lr=1e-4,
         max_timesteps=int(sys.argv[1]),
-        buffer_size=1000000,
-        batch_size=32,
-        exploration_fraction=0.95,
-        exploration_final_eps=0.01,
-        train_freq=1,
-        val_freq=1000,
-        print_freq=100,
-        learning_starts=50000,
-        target_network_update_freq=1000,
-        gamma=0.99,
-        prioritized_replay=True,
-        deterministic_filter=True,
-        random_filter=True,
+        **cf.gomoku
     )
     print("Saving model to kaithy_cnn_to_mlp_5_model.pkl")
     act.save("kaithy_cnn_to_mlp_5_model.pkl")

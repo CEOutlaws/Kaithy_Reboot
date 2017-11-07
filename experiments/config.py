@@ -1,0 +1,16 @@
+gomoku = {
+    'lr': 1e-4,
+    'buffer_size': 1000000,
+    'batch_size': 32,
+    'exploration_fraction': 0.95,
+    'exploration_final_eps': 0.01,
+    'train_freq': 1,
+    'val_freq': 1000,
+    'print_freq': 100,
+    'learning_starts': 50000,
+    'target_network_update_freq': 1000,
+    'gamma': 0.99,
+    'prioritized_replay': True,
+    'deterministic_filter': True,
+    'random_filter': True,
+}
