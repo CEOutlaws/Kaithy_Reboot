@@ -4,6 +4,13 @@ import adversarial_gym as gym
 from baselines import deepq
 
 
+def __val_opponent_policy(curr_state, prev_state, prev_action):
+    '''
+    Define policy for opponent to validate model here
+    '''
+    return gym.gym_gomoku.envs.util.make_beginner_policy(np.random)(curr_state, prev_state, prev_action)
+
+
 def train(board_size, max_timesteps):
     """train gomoku AI play board whose size is board_size x board_size.
 
@@ -21,14 +28,8 @@ def train(board_size, max_timesteps):
     """
     env = gym.make(
         'Gomoku{}x{}-training-camp-v0'.format(board_size, board_size))
-
-    def val_opponent_policy(curr_state, prev_state, prev_action):
-        '''
-        Define policy for opponent to validate model here
-        '''
-        return gym.gym_gomoku.envs.util.make_beginner_policy(np.random)(curr_state, prev_state, prev_action)
     val_env = gym.make(
-        'Gomoku{}x{}-training-camp-v0'.format(board_size, board_size), val_opponent_policy)
+        'Gomoku{}x{}-training-camp-v0'.format(board_size, board_size), __val_opponent_policy)
 
     # Enabling layer_norm here is import for parameter space noise!
     model = deepq.models.cnn_to_mlp(
@@ -75,7 +76,7 @@ def enjoy(board_size):
     None
     """
     env = gym.make('Gomoku{}x{}-training-camp-v0'.format(board_size,
-                                                         board_size), val_opponent_policy)
+                                                         board_size), __val_opponent_policy)
     act = deepq.load("kaithy_cnn_to_mlp_{}_model.pkl".format(
         board_size))
     # Enabling layer_norm here is import for parameter space noise!
