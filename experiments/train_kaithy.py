@@ -5,7 +5,6 @@ from template.gomoku import train
 
 
 def main():
-    train(sys.argv[1], sys.argv[2])
     try:
         train(int(sys.argv[1]), int(sys.argv[2]))
     except Exception as e:
