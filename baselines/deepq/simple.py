@@ -82,7 +82,7 @@ def load(path, num_cpu=16):
 
 
 def validate(env, act, kwargs):
-    num_episodes = 100
+    num_episodes = 200
     win_count = 0
     lose_count = 0
 
