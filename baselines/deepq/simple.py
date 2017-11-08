@@ -285,6 +285,7 @@ def learn(env,
     episode_rewards = [0.0]
     saved_mean_reward = None
     saved_num_win = 1
+    saved_time_step = None
 
     opponent = Opponent(flatten_obs=flatten_obs, act=act,
                         replay_buffer=replay_buffer)
@@ -404,19 +405,21 @@ def learn(env,
                     saved_time_step = t
                     saved_num_win = num_win
                     saved_num_lose = num_lose
-                else:
+                elif saved_time_step is not None:
                     logger.log("Nothing improve keep saved state at time step {} with num win-lose: {}-{}".format(
                         saved_time_step, saved_num_win, saved_num_lose))
-
-            # if (checkpoint_freq is not None and t > learning_starts and
-            #         num_episodes > 100 and t % checkpoint_freq == 0):
-            #     if saved_mean_reward is None or mean_100ep_reward > saved_mean_reward:
-            #         if print_freq is not None:
-            #             logger.log("Saving model due to mean reward increase: {} -> {}".format(
-            #                        saved_mean_reward, mean_100ep_reward))
-            #         U.save_state(model_file)
-            #         model_saved = True
-            #         saved_mean_reward = mean_100ep_reward
+                else:
+                    logger.log(
+                        "Nothing improve keep saved state at time step 0")
+                    # if (checkpoint_freq is not None and t > learning_starts and
+                    #         num_episodes > 100 and t % checkpoint_freq == 0):
+                    #     if saved_mean_reward is None or mean_100ep_reward > saved_mean_reward:
+                    #         if print_freq is not None:
+                    #             logger.log("Saving model due to mean reward increase: {} -> {}".format(
+                    #                        saved_mean_reward, mean_100ep_reward))
+                    #         U.save_state(model_file)
+                    #         model_saved = True
+                    #         saved_mean_reward = mean_100ep_reward
         if model_saved:
             if print_freq is not None:
                 logger.log("Restored model at time step {} with num win-lose: {}-{}".format(
