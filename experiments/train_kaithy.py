@@ -14,7 +14,7 @@ def main():
             board_size=int(sys.argv[1]),
             max_timesteps=int(sys.argv[2])
         )
-    except Exception as e:
+    except Exception:
         print('Usage:')
         print('\tcd ./experiments')
         print('\tpython ./train_kaithy board_size max_time_step')

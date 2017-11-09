@@ -9,7 +9,7 @@ def main():
         enjoy(
             board_size=int(sys.argv[1])
         )
-    except Exception as e:
+    except Exception:
         print('Usage:')
         print('\tcd ./experiments')
         print('\tpython ./enjoy_kaithy board_size')
