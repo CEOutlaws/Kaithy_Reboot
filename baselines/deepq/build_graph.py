@@ -474,11 +474,11 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
 
         # compute the error (potentially clipped)
         td_error = q_t_selected - tf.stop_gradient(q_t_selected_target)
-        errors = U.huber_loss(td_error)
+        error = tf.reduce_mean(
+            importance_weights_ph * U.huber_loss(td_error))
         regularizer = tf.add_n([tf.nn.l2_loss(var)
                                 for var in q_func_vars]) * 0.0001
-        weighted_error = tf.reduce_mean(
-            importance_weights_ph * errors) + regularizer
+        weighted_error = error + regularizer
 
         # compute optimization op (potentially with gradient clipping)
         if grad_norm_clipping is not None:
@@ -507,7 +507,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
                 done_mask_ph,
                 importance_weights_ph
             ],
-            outputs=td_error,
+            outputs=[td_error, error, total_error],
             updates=[optimize_expr]
         )
         update_target = U.function([], [], updates=[update_target_expr])

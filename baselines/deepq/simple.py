@@ -295,7 +295,7 @@ def learn(env,
     reset = True
     start_time = time.time()
     start_clock = time.clock()
-    td_errors = None
+    total_error = None
 
     with tempfile.TemporaryDirectory() as td:
         model_saved = False
@@ -352,8 +352,8 @@ def learn(env,
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(
                         batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
-                td_errors = train(obses_t, actions, rewards,
-                                  obses_tp1, dones, weights)
+                td_errors, base_error, total_error = train(obses_t, actions, rewards,
+                                                           obses_tp1, dones, weights)
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
                     replay_buffer.update_priorities(
@@ -371,9 +371,11 @@ def learn(env,
                 logger.record_tabular(
                     "Wall-clock time", time.clock() - start_clock)
                 logger.record_tabular("steps", t)
-                if td_errors is not None:
+                if total_error is not None:
                     logger.record_tabular(
-                        "TD-Error", np.sum(np.abs(td_errors)))
+                        "Base error", base_error)
+                    logger.record_tabular(
+                        "Total error", total_error)
                 logger.record_tabular("episodes", num_episodes)
                 logger.record_tabular(
                     "mean 100 episode reward", mean_100ep_reward)
