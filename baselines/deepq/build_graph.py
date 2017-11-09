@@ -478,7 +478,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         regularizer = tf.add_n([tf.nn.l2_loss(var)
                                 for var in q_func_vars]) * 0.0001
         weighted_error = tf.reduce_mean(
-            importance_weights_ph * errors + 0.01 * regularizer)
+            importance_weights_ph * errors) + regularizer
 
         # compute optimization op (potentially with gradient clipping)
         if grad_norm_clipping is not None:
