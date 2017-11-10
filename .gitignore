@@ -3,3 +3,4 @@ __pycache__
 actTensor.sh
 dqn/*
 *.pkl
+*_output.txt

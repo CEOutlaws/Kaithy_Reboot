@@ -5,10 +5,6 @@ from template.gomoku import train
 
 
 def main():
-    train(
-        board_size=int(sys.argv[1]),
-        max_timesteps=int(sys.argv[2])
-    )
     try:
         train(
             board_size=int(sys.argv[1]),
