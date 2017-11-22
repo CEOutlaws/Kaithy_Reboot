@@ -102,7 +102,7 @@ class GomokuEnv(gym.Env):
     '''
     metadata = {"render.modes": ["human", "ansi"]}
 
-    def __init__(self, player_color, opponent, board_size, random_reset):
+    def __init__(self, player_color, opponent, board_size, random_reset=False):
         """
         Args:
             player_color: Stone color for the agent. Either 'black' or 'white'
