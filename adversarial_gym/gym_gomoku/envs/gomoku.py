@@ -109,11 +109,12 @@ class GomokuEnv(gym.Env):
             opponent: Name of the opponent policy, e.g. random, beginner, medium, expert
             board_size: board_size of the board to use
         """
+        # Below attribute is used for randome_reset
         self.action_list = np.arange(board_size * board_size)
+        self.random_reset = random_reset
 
         self.board_size = board_size
         self.player_color = player_color
-        self.random_reset = random_reset
 
         self._seed()
 
@@ -152,7 +153,22 @@ class GomokuEnv(gym.Env):
 
         if self.random_reset:
             # self.action_space.invalid_mask =
-            self.state.board.board_state = random.choices()
+            num_black_actions = random.randint(0, len(self.action_list) / 3)
+
+            black_actions = random.sample(self.action_list, num_black_actions)
+            white_actions = random.sample(
+                [piece for piece in self.action_list if piece not in black_actions], num_black_actions)
+
+            for action in white_actions:
+                color = 'white'
+                self.state = GomokuState(self.state.board.play(action, color),
+                                         gomoku_util.other_color(color))
+                self.action_space.remove(action)
+            for action in black_actions:
+                color = 'black'
+                self.state = GomokuState(self.state.board.play(action, color),
+                                         gomoku_util.other_color(color))
+                self.action_space.remove(action)
 
         # (re-initialize) the opponent,
         self._reset_opponent(self.state.board, custom_opponent_policy)
