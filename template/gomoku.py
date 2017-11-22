@@ -29,7 +29,7 @@ def train(board_size, max_timesteps):
     env = gym.make(
         'Gomoku{}x{}-training-camp-v0'.format(board_size, board_size))
     val_env = gym.make(
-        'Gomoku{}x{}-training-camp-v0'.format(board_size, board_size), __val_opponent_policy)
+        'Gomoku{}x{}-arena-v0'.format(board_size, board_size), __val_opponent_policy)
 
     # Enabling layer_norm here is import for parameter space noise!
     model = deepq.models.cnn_to_mlp(
@@ -78,8 +78,8 @@ def enjoy(board_size):
     -------
     None
     """
-    env = gym.make('Gomoku{}x{}-training-camp-v0'.format(board_size,
-                                                         board_size), __val_opponent_policy)
+    env = gym.make('Gomoku{}x{}-arena-v0'.format(board_size,
+                                                 board_size), __val_opponent_policy)
     act = deepq.load("kaithy_cnn_to_mlp_{}_model.pkl".format(
         board_size))
     # Enabling layer_norm here is import for parameter space noise!
