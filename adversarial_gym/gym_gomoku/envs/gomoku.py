@@ -136,7 +136,7 @@ class GomokuEnv(gym.Env):
         self.state = None
 
         # reset the board during initialization
-        self._reset()
+        # self._reset()
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
