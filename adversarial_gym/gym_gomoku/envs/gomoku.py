@@ -110,7 +110,7 @@ class GomokuEnv(gym.Env):
             board_size: board_size of the board to use
         """
         # Below attribute is used for randome_reset
-        self.action_list = np.arange(board_size * board_size)
+        self.action_list = range(board_size * board_size)
         self.random_reset = random_reset
 
         self.board_size = board_size
@@ -153,7 +153,8 @@ class GomokuEnv(gym.Env):
 
         if self.random_reset:
             # self.action_space.invalid_mask =
-            num_black_actions = random.randint(0, len(self.action_list) / 3)
+            num_black_actions = random.randint(
+                0, (len(self.action_list) - 1) / 3)
 
             black_actions = random.sample(self.action_list, num_black_actions)
             white_actions = random.sample(
