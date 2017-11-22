@@ -172,7 +172,7 @@ class GomokuEnv(gym.Env):
                 self.action_space.remove(action)
 
         # (re-initialize) the opponent,
-        self._reset_opponent(self.state.board, custom_opponent_policy)
+        self._reset_opponent(custom_opponent_policy)
         # self.moves = []
 
         # Let the opponent play if it's not the agent's turn, there is no resign in Gomoku
@@ -303,7 +303,7 @@ class GomokuEnv(gym.Env):
     # def _moves(self):
     #     return self.moves
 
-    def _reset_opponent(self, board, custom_opponent_policy=None):
+    def _reset_opponent(self, custom_opponent_policy=None):
         if self.opponent == 'beginner':
             self.opponent_policy = make_beginner_policy(self.np_random)
         elif self.opponent == 'player':
