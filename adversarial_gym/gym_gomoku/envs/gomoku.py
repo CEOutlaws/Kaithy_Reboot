@@ -145,32 +145,41 @@ class GomokuEnv(gym.Env):
         return [seed1, seed2]
 
     def _reset(self, custom_opponent_policy=None):
-        self.state = GomokuState(
-            Board(self.board_size), gomoku_util.BLACK)  # Black Plays First
-
-        # reset action_space
-        self.action_space = DiscreteWrapper2d(self.board_size)
-
         if self.random_reset:
-            # self.action_space.invalid_mask =
-            num_black_actions = random.randint(
-                0, (len(self.action_list) - 1) / 3)
+            while(True):
+                self.state = GomokuState(
+                    Board(self.board_size), gomoku_util.BLACK)  # Black Plays First
 
-            black_actions = random.sample(self.action_list, num_black_actions)
-            white_actions = random.sample(
-                [piece for piece in self.action_list if piece not in black_actions], num_black_actions)
+                # reset action_space
+                self.action_space = DiscreteWrapper2d(self.board_size)
 
-            for action in black_actions:
-                color = 'black'
-                self.state = GomokuState(self.state.board.play(action, color),
-                                         gomoku_util.other_color(color))
-                self.action_space.remove(action)
+                num_black_actions = random.randint(
+                    0, (len(self.action_list) - 1) / 3)
 
-            for action in white_actions:
-                color = 'white'
-                self.state = GomokuState(self.state.board.play(action, color),
-                                         gomoku_util.other_color(color))
-                self.action_space.remove(action)
+                black_actions = random.sample(
+                    self.action_list, num_black_actions)
+                white_actions = random.sample(
+                    [piece for piece in self.action_list if piece not in black_actions], num_black_actions)
+
+                for action in black_actions:
+                    color = 'black'
+                    self.state = GomokuState(self.state.board.play(action, color),
+                                             gomoku_util.other_color(color))
+                    self.action_space.remove(action)
+
+                for action in white_actions:
+                    color = 'white'
+                    self.state = GomokuState(self.state.board.play(action, color),
+                                             gomoku_util.other_color(color))
+                    self.action_space.remove(action)
+
+                if not self.state.board.is_terminal():
+                    break
+        else:
+            self.state = GomokuState(
+                Board(self.board_size), gomoku_util.BLACK)  # Black Plays First
+            # reset action_space
+            self.action_space = DiscreteWrapper2d(self.board_size)
 
         # (re-initialize) the opponent,
         self._reset_opponent(custom_opponent_policy)
