@@ -26,7 +26,6 @@ def main():
         while not done:
             action = env.action_space.sample()  # sample without replacement
             observation, reward, done, info = env.step(action)
-            print(observation)
             env.render()
 
         env.swap_role()
