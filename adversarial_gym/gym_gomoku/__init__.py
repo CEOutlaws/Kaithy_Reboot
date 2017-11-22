@@ -29,6 +29,7 @@ register(
         'player_color': 'black',
         'opponent': 'player',
         'board_size': 5,
+        'random_reset': True,
     },
     nondeterministic=True,
 )
@@ -40,6 +41,7 @@ register(
         'player_color': 'black',
         'opponent': 'player',
         'board_size': 9,
+        'random_reset': True,
     },
     nondeterministic=True,
 )
@@ -51,6 +53,31 @@ register(
         'player_color': 'black',
         'opponent': 'player',
         'board_size': 15,
+        'random_reset': True,
+    },
+    nondeterministic=True,
+)
+
+register(
+    id='Gomoku5x5-arena-v0',
+    entry_point='adversarial_gym.gym_gomoku.envs:GomokuEnv',
+    kwargs={
+        'player_color': 'black',
+        'opponent': 'player',
+        'board_size': 5,
+        'random_reset': False,
+    },
+    nondeterministic=True,
+)
+
+register(
+    id='Gomoku9x9-arena-v0',
+    entry_point='adversarial_gym.gym_gomoku.envs:GomokuEnv',
+    kwargs={
+        'player_color': 'black',
+        'opponent': 'player',
+        'board_size': 9,
+        'random_reset': False,
     },
     nondeterministic=True,
 )
