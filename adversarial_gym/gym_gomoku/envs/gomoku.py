@@ -160,13 +160,14 @@ class GomokuEnv(gym.Env):
             white_actions = random.sample(
                 [piece for piece in self.action_list if piece not in black_actions], num_black_actions)
 
-            for action in white_actions:
-                color = 'white'
+            for action in black_actions:
+                color = 'black'
                 self.state = GomokuState(self.state.board.play(action, color),
                                          gomoku_util.other_color(color))
                 self.action_space.remove(action)
-            for action in black_actions:
-                color = 'black'
+
+            for action in white_actions:
+                color = 'white'
                 self.state = GomokuState(self.state.board.play(action, color),
                                          gomoku_util.other_color(color))
                 self.action_space.remove(action)
