@@ -17,7 +17,7 @@ def main():
     '''
     AI Self-training program
     '''
-    env = gym.make('Gomoku5x5-training-camp-v0', opponent_policy)
+    env = gym.make('Gomoku5x5-arena-v0', opponent_policy)
 
     for i in range(2):
         observation = env.reset()
@@ -26,7 +26,6 @@ def main():
         while not done:
             action = env.action_space.sample()  # sample without replacement
             observation, reward, done, info = env.step(action)
-            print(observation)
             env.render()
 
         env.swap_role()

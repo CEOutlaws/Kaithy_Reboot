@@ -7,6 +7,7 @@ from six import StringIO
 import sys
 import os
 import six
+import random
 
 from .util import gomoku_util
 from .util import make_beginner_policy
@@ -101,13 +102,17 @@ class GomokuEnv(gym.Env):
     '''
     metadata = {"render.modes": ["human", "ansi"]}
 
-    def __init__(self, player_color, opponent, board_size):
+    def __init__(self, player_color, opponent, board_size, random_reset=False):
         """
         Args:
             player_color: Stone color for the agent. Either 'black' or 'white'
             opponent: Name of the opponent policy, e.g. random, beginner, medium, expert
             board_size: board_size of the board to use
         """
+        # Below attribute is used for randome_reset
+        self.action_list = range(board_size * board_size)
+        self.random_reset = random_reset
+
         self.board_size = board_size
         self.player_color = player_color
 
@@ -125,13 +130,13 @@ class GomokuEnv(gym.Env):
         self.action_space = DiscreteWrapper2d(self.board_size)
 
         # Keep track of the moves
-        self.moves = []
+        # self.moves = []
 
         # Empty State
         self.state = None
 
         # reset the board during initialization
-        self._reset()
+        # self._reset()
 
     def _seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
@@ -140,24 +145,56 @@ class GomokuEnv(gym.Env):
         return [seed1, seed2]
 
     def _reset(self, custom_opponent_policy=None):
-        self.state = GomokuState(
-            Board(self.board_size), gomoku_util.BLACK)  # Black Plays First
+        if self.random_reset:
+            while(True):
+                self.state = GomokuState(
+                    Board(self.board_size), gomoku_util.BLACK)  # Black Plays First
+
+                # reset action_space
+                self.action_space = DiscreteWrapper2d(self.board_size)
+
+                num_black_actions = random.randint(
+                    0, (len(self.action_list) - 1) / 3)
+
+                black_actions = random.sample(
+                    self.action_list, num_black_actions)
+                white_actions = random.sample(
+                    [piece for piece in self.action_list if piece not in black_actions], num_black_actions)
+
+                for action in black_actions:
+                    color = 'black'
+                    self.state = GomokuState(self.state.board.play(action, color),
+                                             gomoku_util.other_color(color))
+                    self.action_space.remove(action)
+
+                for action in white_actions:
+                    color = 'white'
+                    self.state = GomokuState(self.state.board.play(action, color),
+                                             gomoku_util.other_color(color))
+                    self.action_space.remove(action)
+
+                if not self.state.board.is_terminal():
+                    break
+        else:
+            self.state = GomokuState(
+                Board(self.board_size), gomoku_util.BLACK)  # Black Plays First
+            # reset action_space
+            self.action_space = DiscreteWrapper2d(self.board_size)
+
         # (re-initialize) the opponent,
-        self._reset_opponent(self.state.board, custom_opponent_policy)
-        self.moves = []
+        self._reset_opponent(custom_opponent_policy)
+        # self.moves = []
 
         # Let the opponent play if it's not the agent's turn, there is no resign in Gomoku
         if self.state.color != self.player_color:
             opponent_action = self._exec_opponent_play(
                 self.state, None, None)
             self.state = self.state.act(opponent_action)
-            self.moves.append(self.state.board.last_coord)
+            self.action_space.remove(opponent_action)
+            # self.moves.append(self.state.board.last_coord)
 
         # We should be back to the agent color
         assert self.state.color == self.player_color
-
-        # reset action_space
-        self.action_space = DiscreteWrapper2d(self.board_size)
 
         self.done = self.state.board.is_terminal()
         return self.state.encode()
@@ -221,7 +258,7 @@ class GomokuEnv(gym.Env):
         # Player play
         prev_state = self.state
         self.state = self.state.act(action)
-        self.moves.append(self.state.board.last_coord)
+        # self.moves.append(self.state.board.last_coord)
         # remove current action from action_space
         self.action_space.remove(action)
 
@@ -235,7 +272,7 @@ class GomokuEnv(gym.Env):
                 return self.state.encode(), 0., True, {'state': self.state}
 
             self.state = self.state.act(opponent_action)
-            self.moves.append(self.state.board.last_coord)
+            # self.moves.append(self.state.board.last_coord)
             # remove opponent action from action_space
             self.action_space.remove(opponent_action)
             # After opponent play, we should be back to the original color
@@ -272,11 +309,11 @@ class GomokuEnv(gym.Env):
     def _state(self):
         return self.state
 
-    @property
-    def _moves(self):
-        return self.moves
+    # @property
+    # def _moves(self):
+    #     return self.moves
 
-    def _reset_opponent(self, board, custom_opponent_policy=None):
+    def _reset_opponent(self, custom_opponent_policy=None):
         if self.opponent == 'beginner':
             self.opponent_policy = make_beginner_policy(self.np_random)
         elif self.opponent == 'player':
