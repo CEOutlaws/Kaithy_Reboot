@@ -122,30 +122,50 @@ def main():
             #  start action rotate
 
             def rotate_action(board_size,pos_1D,k):
-                # pos_2D = (pos_1D // board_size , pos_1D % board_size)
+                pos_2D = (pos_1D // board_size , pos_1D % board_size)
                 if (k==1):
-                    # print((board_size>>1)<<1)
-                    pos_2D = (pos_1D // board_size , pos_1D % board_size)
-                    rot_pos = (board_size-1 - pos_2D[1] )*board_size + pos_2D[0]
-                if (k==2):
                     
-                # elif (k==2):
-                    # rot_pos = 0
-                #  4,2 16 4,4
-                #  1,1 0 5,1
+                    # pos_2D = (pos_1D // board_size , pos_1D % board_size)
+                    rot_pos = pos_2D[0]*board_size+(board_size-1 - pos_2D[1] ) 
+                if (k==2):
+                    rot_pos = (board_size -1 - pos_2D[0] )*board_size + (board_size-1 -pos_2D[1])
+
+                if (k==3):
+                    rot_pos = (board_size-1-pos_2D[0]) + pos_2D[1]*board_size
                 print(rot_pos,pos_1D,pos_2D)
-            
+                # exit(0)
+            def flip_action(board_size,pos_1D,k):
+                pos_2D = (pos_1D // board_size , pos_1D % board_size)
+                # flip and rot 0
+                if (k==0):
+                    flip_rot = (pos_2D[0],-pos_2D[1]+board_size-1)
+                # flip and rot 90
+                if (k==1):
+                    flip_rot = (pos_2D[1],pos_2D[0])
+                # flip and rot 180
+                if (k==2):
+                    flip_rot = (-pos_2D[0]+board_size -1 ,pos_2D[1])
+                # flip and rot 270
+                if (k==3):
+                    flip_rot = (-pos_2D[1]+board_size -1 , -pos_2D[0]+board_size-1)
+
+
+                print(flip_rot,pos_1D,pos_2D)
             # print(action)
-            rotate_action(observation.shape[0],action,1)
+            angle = 3
+            flip_action(observation.shape[0],action,angle)
             # exit(0)
             #  observation flip and rotate
             print(observation[:, :, 1],env.observation_space.shape[0:2])
             # exit(0)
             obs_temp_ph = tf.placeholder(dtype=tf.int32, shape=(env.observation_space.shape))
             k = tf.placeholder(tf.int32)
-            tf_img = tf.image.rot90(obs_temp_ph, k = k)
+            # tf_img = tf.image.rot90(obs_temp_ph, k = k)
+            tf_img1 = tf.image.flip_left_right(obs_temp_ph)
+            tf_img = tf.image.rot90(tf_img1, k = k)
             # tf_img = tf.image.flip_left_right(obs_temp_ph)
-            rotated_img = sess.run(tf_img, feed_dict = {obs_temp_ph: observation, k: 1})
+            rotated_img = sess.run(tf_img, feed_dict = {obs_temp_ph: observation, k:angle})
+            # rotated_img = sess.run(tf_img1, feed_dict = {obs_temp_ph: observation})
             print(rotated_img[:, :, 1])
             exit(0)
             
