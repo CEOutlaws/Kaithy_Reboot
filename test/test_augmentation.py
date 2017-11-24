@@ -69,24 +69,40 @@ def main():
     # obs_t_input = U.ensure_tf_input(make_obs_ph("obs_t"))
     # obs_t_input = tf.placeholder(
     #     dtype=tf.float32,shape=[None])
+    size =32
     obs_t_input = tf.placeholder(
-        dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
+        dtype=tf.float32, shape=list(env.observation_space.shape))
+
     act_t_ph = tf.placeholder(tf.int32, [None], name="action")
     obs_tp1_input = tf.placeholder(
         dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
 
-    batch_size = tf.shape(obs_t_input)[0]
-
-    for i in range(0,batch_size): 
-        if (i > 0 and i <4):
-            obs_t_input[i] = tf.image.rot90(obs_t_input[1:4], k = i)
-        if (i ==4 ) :
-            obs_t_input[i] = tf.image.flip_left_right(obs_temp_ph[1:4])
-        if (i>4 and i <8):
-            obs_t_input[i] = tf.image.rot90(obs_t_input[4], k = (i-4))
-
-
     
+
+    # batch_size = tf.shape(obs_t_input)[0]
+    # print(list(env.observation_space.shape),tf.shape(obs_t_input[1:4]))
+    # exit(0)
+    list_obs = []
+    # for i in range(0,8): 
+    #     if (i > 0 and i <4):
+    #         obs_t_input[i,:, :, :] = tf.image.rot90(obs_t_input[1,:,:,:], k = i)
+    #     if (i ==4 ) :
+    #         obs_t_input[i] = tf.image.flip_left_right(obs_temp_ph[1:4])
+    #     if (i>4 and i <8):
+    #         obs_t_input[i] = tf.image.rot90(obs_t_input[4], k = (i-4))
+    
+    for i in range(0,8): 
+        if (i > 0 and i <4):
+            list_obs.append(tf.image.rot90(obs_t_input[1:4], k=i))
+        if (i ==4 ) :
+            list_obs.append(tf.image.flip_left_right(obs_t_input[1:4]))
+        if (i>4 and i <8):
+            list_obs.append(tf.image.rot90(obs_t_input[1:4], k = (i-4)))
+
+
+    obs_ph = tf.stack(list_obs)
+    print(tf.shape(obs_ph))
+    exit(0)
     if deterministic_filter or random_filter:
         invalid_masks = tf.contrib.layers.flatten(
             tf.reduce_sum(obs_ph[:, :, :, 1:3], axis=3))
