@@ -56,17 +56,37 @@ def main():
     obs_ph = tf.placeholder(
         dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
     q_values = layers.fully_connected(layers.flatten(obs_ph), num_actions)
-    
+    def make_obs_ph(name):
+        obs_shape = env.observation_space.shape
+
+        if flatten_obs:
+            flattened_env_shape = 1
+            for dim_size in env.observation_space.shape:
+                flattened_env_shape *= dim_size
+            obs_shape = (flattened_env_shape,)
+
+        return U.BatchInput(obs_shape, name=name)
     # obs_t_input = U.ensure_tf_input(make_obs_ph("obs_t"))
+    # obs_t_input = tf.placeholder(
+    #     dtype=tf.float32,shape=[None])
     obs_t_input = tf.placeholder(
         dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
-
     act_t_ph = tf.placeholder(tf.int32, [None], name="action")
-
     obs_tp1_input = tf.placeholder(
         dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
 
+    batch_size = tf.shape(obs_t_input)[0]
 
+    for i in range(0,batch_size): 
+        if (i > 0 and i <4):
+            obs_t_input[i] = tf.image.rot90(obs_t_input[1:4], k = i)
+        if (i ==4 ) :
+            obs_t_input[i] = tf.image.flip_left_right(obs_temp_ph[1:4])
+        if (i>4 and i <8):
+            obs_t_input[i] = tf.image.rot90(obs_t_input[4], k = (i-4))
+
+
+    
     if deterministic_filter or random_filter:
         invalid_masks = tf.contrib.layers.flatten(
             tf.reduce_sum(obs_ph[:, :, :, 1:3], axis=3))
@@ -124,8 +144,6 @@ def main():
             def rotate_action(board_size,pos_1D,k):
                 pos_2D = (pos_1D // board_size , pos_1D % board_size)
                 if (k==1):
-                    
-                    # pos_2D = (pos_1D // board_size , pos_1D % board_size)
                     rot_pos = pos_2D[0]*board_size+(board_size-1 - pos_2D[1] ) 
                 if (k==2):
                     rot_pos = (board_size -1 - pos_2D[0] )*board_size + (board_size-1 -pos_2D[1])
@@ -152,7 +170,7 @@ def main():
 
                 print(flip_rot,pos_1D,pos_2D)
             # print(action)
-            angle = 3
+            angle = 0
             flip_action(observation.shape[0],action,angle)
             # exit(0)
             #  observation flip and rotate
@@ -161,8 +179,8 @@ def main():
             obs_temp_ph = tf.placeholder(dtype=tf.int32, shape=(env.observation_space.shape))
             k = tf.placeholder(tf.int32)
             # tf_img = tf.image.rot90(obs_temp_ph, k = k)
-            tf_img1 = tf.image.flip_left_right(obs_temp_ph)
-            tf_img = tf.image.rot90(tf_img1, k = k)
+            # tf_img1 = tf.image.flip_left_right(obs_temp_ph[0:3])
+            tf_img = tf.image.rot90(obs_temp_ph, k = k)
             # tf_img = tf.image.flip_left_right(obs_temp_ph)
             rotated_img = sess.run(tf_img, feed_dict = {obs_temp_ph: observation, k:angle})
             # rotated_img = sess.run(tf_img1, feed_dict = {obs_temp_ph: observation})
