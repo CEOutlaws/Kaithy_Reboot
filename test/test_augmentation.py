@@ -160,9 +160,43 @@ def main():
         # print(observation.shape)
         # exit(0)
         while not done:
-            action = sess.run(output_actions, feed_dict={
+            def rotate_action(board_size,pos_1D,k):
+                pos_2D = (pos_1D // board_size , pos_1D % board_size)
+                # rot90
+                if (k==1):
+                    rot_pos = pos_2D[0]*board_size+(board_size-1 - pos_2D[1] ) 
+                # rot180
+                if (k==2):
+                    rot_pos = (board_size -1 - pos_2D[0] )*board_size + (board_size-1 -pos_2D[1])
+                # rot270
+                if (k==3):
+                    rot_pos = (board_size-1-pos_2D[0]) + pos_2D[1]*board_size
+                return rot_pos
+            def flip_action(board_size,pos_1D,k):
+                pos_2D = (pos_1D // board_size , pos_1D % board_size)
+                # flip and rot 0
+                if (k==0):
+                    flip_rot = pos_2D[0]*board_size + -pos_2D[1]+board_size-1
+                # flip and rot 90
+                if (k==1):
+                    flip_rot = pos_2D[1]*board_size+pos_2D[0]
+                # flip and rot 180
+                if (k==2):
+                    flip_rot = (-pos_2D[0]+board_size -1)*board_size +pos_2D[1]
+                # flip and rot 270
+                if (k==3):
+                    flip_rot = (-pos_2D[1]+board_size -1 )*board_size+ -pos_2D[0]+board_size-1
+                return flip_rot
+
+            actions = sess.run(output_actions, feed_dict={
                 obs_t_input: observation})
-            print(action,observation[:,:,1])
+            action = actions[0]
+            for i in range(1,8):
+                if (i<4):
+                    actions[i] = rotate_action(observation.shape[0],action,i)
+                else :
+                    actions[i] = flip_action(observation.shape[0],action,(i-4))
+            print(actions,observation[:,:,1])
             exit(0)
             observation, reward, done, info = env.step(action)
             
@@ -170,11 +204,13 @@ def main():
 
             def rotate_action(board_size,pos_1D,k):
                 pos_2D = (pos_1D // board_size , pos_1D % board_size)
+                # rot90
                 if (k==1):
                     rot_pos = pos_2D[0]*board_size+(board_size-1 - pos_2D[1] ) 
+                # rot180
                 if (k==2):
                     rot_pos = (board_size -1 - pos_2D[0] )*board_size + (board_size-1 -pos_2D[1])
-
+                # rot270
                 if (k==3):
                     rot_pos = (board_size-1-pos_2D[0]) + pos_2D[1]*board_size
                 print(rot_pos,pos_1D,pos_2D)
