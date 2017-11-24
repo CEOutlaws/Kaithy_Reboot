@@ -53,9 +53,9 @@ def main():
 
     num_actions = env.action_space.n
 
-    obs_ph = tf.placeholder(
-        dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
-    q_values = layers.fully_connected(layers.flatten(obs_ph), num_actions)
+    # obs_ph = tf.placeholder(
+    #     dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
+    # q_values = layers.fully_connected(layers.flatten(obs_ph), num_actions)
     def make_obs_ph(name):
         obs_shape = env.observation_space.shape
 
@@ -90,22 +90,29 @@ def main():
     #         obs_t_input[i] = tf.image.flip_left_right(obs_temp_ph[1:4])
     #     if (i>4 and i <8):
     #         obs_t_input[i] = tf.image.rot90(obs_t_input[4], k = (i-4))
-    
+    list_obs.append(obs_t_input)
     for i in range(0,8): 
         if (i > 0 and i <4):
-            list_obs.append(tf.image.rot90(obs_t_input[1:4], k=i))
+            list_obs.append(tf.image.rot90(obs_t_input, k=i))
         if (i ==4 ) :
-            list_obs.append(tf.image.flip_left_right(obs_t_input[1:4]))
+            list_obs.append(tf.image.flip_left_right(obs_t_input))
         if (i>4 and i <8):
-            list_obs.append(tf.image.rot90(obs_t_input[1:4], k = (i-4)))
+            list_obs.append(tf.image.rot90(obs_t_input, k = (i-4)))
 
 
     obs_ph = tf.stack(list_obs)
-    print(tf.shape(obs_ph))
-    exit(0)
+    # print(tf.shape(obs_ph)[0])
+    # exit(0)
+    # obs_ph = tf.placeholder(
+    #     dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
+    # print(tf.shape(obs_ph)[0])
+    # exit(0)
+    q_values = layers.fully_connected(layers.flatten(obs_ph), num_actions)
     if deterministic_filter or random_filter:
         invalid_masks = tf.contrib.layers.flatten(
             tf.reduce_sum(obs_ph[:, :, :, 1:3], axis=3))
+        # print(tf.shape(invalid_masks))
+        # exit(0)
 
     if deterministic_filter:
         q_values_worst = tf.reduce_min(q_values, axis=1, keep_dims=True)
@@ -149,12 +156,16 @@ def main():
         observation = env.reset()
         # print(observation)
         done = None
-
+        
+        # print(observation.shape)
+        # exit(0)
         while not done:
             action = sess.run(output_actions, feed_dict={
-                obs_ph: observation[None]})[0]
+                obs_t_input: observation})
+            print(action,observation[:,:,1])
+            exit(0)
             observation, reward, done, info = env.step(action)
-
+            
             #  start action rotate
 
             def rotate_action(board_size,pos_1D,k):
