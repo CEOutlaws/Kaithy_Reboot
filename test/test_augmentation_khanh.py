@@ -64,8 +64,10 @@ def main():
     board_size = 5
     # Build graph
     act_t_ph = tf.placeholder(tf.int32, [None], name="action")
+    batch_size = tf.shape(act_t_ph)[0]
     act_flip_rot = flip_action(board_size, act_t_ph, 1)
-    act_rot = rotate_action(board_size, act_t_ph, 1)
+    act_rot = tf.zeros_like(tf.int32, [batch_size], name="action_rot")
+    act_rot[0:batch_size] = rotate_action(board_size, act_t_ph, 1)
 
     # Run graph
     sess = tf.Session()
