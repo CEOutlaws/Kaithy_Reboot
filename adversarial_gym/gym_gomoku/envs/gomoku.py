@@ -154,7 +154,7 @@ class GomokuEnv(gym.Env):
                 self.action_space = DiscreteWrapper2d(self.board_size)
 
                 num_black_actions = random.randint(
-                    0, (len(self.action_list) - 1) / 3)
+                    0, (len(self.action_list) - 1) // 3)
 
                 black_actions = random.sample(
                     self.action_list, num_black_actions)
@@ -172,9 +172,11 @@ class GomokuEnv(gym.Env):
                     self.state = GomokuState(self.state.board.play(action, color),
                                              gomoku_util.other_color(color))
                     self.action_space.remove(action)
-
-                if not self.state.board.is_terminal():
-                    break
+                try:
+                    if not self.state.board.is_terminal():
+                        break
+                except Exception:
+                    pass
         else:
             self.state = GomokuState(
                 Board(self.board_size), gomoku_util.BLACK)  # Black Plays First
