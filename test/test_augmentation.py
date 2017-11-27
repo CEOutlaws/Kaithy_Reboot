@@ -71,12 +71,7 @@ def main():
 
     obs_t_input = tf.placeholder(
         dtype=tf.float32, shape=list(env.observation_space.shape))
-
-    act_t_ph = tf.placeholder(tf.int32, [None], name="action")
-    obs_tp1_input = tf.placeholder(
-        dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
-
-    
+  
 
     list_obs = []
     list_obs.append(obs_t_input)
