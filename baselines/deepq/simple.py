@@ -330,16 +330,26 @@ def learn(env,
             # if flatten_obs:
             #     new_obs = new_obs.flatten()
             # Store transition in the replay buffer.
-            replay_buffer.add(obs, action, rew, new_obs, float(done))
-            obs = new_obs
 
             episode_rewards[-1] += rew
             if done:
-                replay_buffer.add(opponent.old_obs,
-                                  opponent.old_action, -rew, obs, float(done))
+                # Player is black
+                new_obs[:, :, 0] = 0
+                replay_buffer.add(obs, action, rew, new_obs, float(done))
+
+                # Opponent is white
+                new_obs[:, :, 0] = 1
+                if opponent.old_obs is not None:
+                    replay_buffer.add(opponent.old_obs,
+                                      opponent.old_action, -rew, new_obs, float(done))
                 obs = env.reset()
+                opponent.reset()
+
                 episode_rewards.append(0.0)
                 reset = True
+            else:
+                replay_buffer.add(obs, action, rew, new_obs, float(done))
+                obs = new_obs
 
             if t > learning_starts and t % train_freq == 0:
                 # Minimize the error in Bellman's equation on a batch sampled from replay buffer.

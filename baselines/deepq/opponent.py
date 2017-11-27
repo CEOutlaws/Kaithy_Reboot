@@ -1,8 +1,6 @@
 class Opponent(object):
     def __init__(self, flatten_obs, replay_buffer, act):
-        self.old_obs = None
-        self.old_action = None
-        self.__obs = None
+        self.reset()
         self.__flatten_obs = flatten_obs
         self.__replay_buffer = replay_buffer
         self.__act = act
@@ -24,3 +22,8 @@ class Opponent(object):
         self.old_obs = self.__obs
         self.old_action = action
         return action
+
+    def reset(self):
+        self.old_obs = None
+        self.old_action = None
+        self.__obs = None
