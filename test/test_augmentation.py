@@ -66,10 +66,9 @@ def main():
             obs_shape = (flattened_env_shape,)
 
         return U.BatchInput(obs_shape, name=name)
-    # obs_t_input = U.ensure_tf_input(make_obs_ph("obs_t"))
-    # obs_t_input = tf.placeholder(
-    #     dtype=tf.float32,shape=[None])
-    size =32
+
+    #  Create batch aumentation for obs ------------------------------------------
+
     obs_t_input = tf.placeholder(
         dtype=tf.float32, shape=list(env.observation_space.shape))
 
@@ -79,17 +78,7 @@ def main():
 
     
 
-    # batch_size = tf.shape(obs_t_input)[0]
-    # print(list(env.observation_space.shape),tf.shape(obs_t_input[1:4]))
-    # exit(0)
     list_obs = []
-    # for i in range(0,8): 
-    #     if (i > 0 and i <4):
-    #         obs_t_input[i,:, :, :] = tf.image.rot90(obs_t_input[1,:,:,:], k = i)
-    #     if (i ==4 ) :
-    #         obs_t_input[i] = tf.image.flip_left_right(obs_temp_ph[1:4])
-    #     if (i>4 and i <8):
-    #         obs_t_input[i] = tf.image.rot90(obs_t_input[4], k = (i-4))
     list_obs.append(obs_t_input)
     for i in range(0,8): 
         if (i > 0 and i <4):
@@ -101,12 +90,9 @@ def main():
 
 
     obs_ph = tf.stack(list_obs)
-    # print(tf.shape(obs_ph)[0])
-    # exit(0)
-    # obs_ph = tf.placeholder(
-    #     dtype=tf.float32, shape=[None] + list(env.observation_space.shape))
-    # print(tf.shape(obs_ph)[0])
-    # exit(0)
+
+    # end create augmentation----------------------------------------
+
     q_values = layers.fully_connected(layers.flatten(obs_ph), num_actions)
     if deterministic_filter or random_filter:
         invalid_masks = tf.contrib.layers.flatten(
@@ -154,13 +140,21 @@ def main():
 
     for i in range(2):
         observation = env.reset()
-        # print(observation)
         done = None
-        
-        # print(observation.shape)
-        # exit(0)
         while not done:
+
+            #  create action rotate -----------------------------
+            
+            
             def rotate_action(board_size,pos_1D,k):
+                """
+                Function rotate board
+                    :param board_size: size of board 
+                    :param pos_1D: position in board
+                    :param k:   1: rotate 90
+                                2: rotate 180
+                                3: rotate 270
+                """           
                 pos_2D = (pos_1D // board_size , pos_1D % board_size)
                 # rot90
                 if (k==1):
@@ -172,7 +166,17 @@ def main():
                 if (k==3):
                     rot_pos = (board_size-1-pos_2D[0]) + pos_2D[1]*board_size
                 return rot_pos
+            
             def flip_action(board_size,pos_1D,k):
+                """
+                Flip board and rotate
+                    :param board_size: size of board
+                    :param pos_1D: position in board
+                    :param k:   0: only flip
+                                1: flip and rotate 90
+                                2: flip and rotate 180
+                                3: flip and rotate 270
+                """           
                 pos_2D = (pos_1D // board_size , pos_1D % board_size)
                 # flip and rot 0
                 if (k==0):
@@ -188,51 +192,26 @@ def main():
                     flip_rot = (-pos_2D[1]+board_size -1 )*board_size+ -pos_2D[0]+board_size-1
                 return flip_rot
 
+
+
+            # run to get action from AI
             actions = sess.run(output_actions, feed_dict={
                 obs_t_input: observation})
+
+            # Get first valid action
             action = actions[0]
+
+            # Rotate this action
             for i in range(1,8):
                 if (i<4):
                     actions[i] = rotate_action(observation.shape[0],action,i)
                 else :
                     actions[i] = flip_action(observation.shape[0],action,(i-4))
-            print(actions,observation[:,:,1])
-            exit(0)
+
+            # END create actions --------------------------------
+
             observation, reward, done, info = env.step(action)
             
-            #  start action rotate
-
-            def rotate_action(board_size,pos_1D,k):
-                pos_2D = (pos_1D // board_size , pos_1D % board_size)
-                # rot90
-                if (k==1):
-                    rot_pos = pos_2D[0]*board_size+(board_size-1 - pos_2D[1] ) 
-                # rot180
-                if (k==2):
-                    rot_pos = (board_size -1 - pos_2D[0] )*board_size + (board_size-1 -pos_2D[1])
-                # rot270
-                if (k==3):
-                    rot_pos = (board_size-1-pos_2D[0]) + pos_2D[1]*board_size
-                print(rot_pos,pos_1D,pos_2D)
-                # exit(0)
-            def flip_action(board_size,pos_1D,k):
-                pos_2D = (pos_1D // board_size , pos_1D % board_size)
-                # flip and rot 0
-                if (k==0):
-                    flip_rot = (pos_2D[0],-pos_2D[1]+board_size-1)
-                # flip and rot 90
-                if (k==1):
-                    flip_rot = (pos_2D[1],pos_2D[0])
-                # flip and rot 180
-                if (k==2):
-                    flip_rot = (-pos_2D[0]+board_size -1 ,pos_2D[1])
-                # flip and rot 270
-                if (k==3):
-                    flip_rot = (-pos_2D[1]+board_size -1 , -pos_2D[0]+board_size-1)
-
-
-                print(flip_rot,pos_1D,pos_2D)
-            # print(action)
             angle = 0
             flip_action(observation.shape[0],action,angle)
             # exit(0)
