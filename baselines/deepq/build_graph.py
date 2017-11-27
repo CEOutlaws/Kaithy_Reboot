@@ -433,7 +433,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         importance_weights_ph = tf.placeholder(
             U.data_type, [None], name="weight")
 
-        board_size = obs_t_input.get().get_shape()[1]
+        board_size = obs_t_input.get().get_shape().as_list()[1]
 
         obs_t = transform_obses(obs_t_input.get())
         obs_tp1 = transform_obses(obs_tp1_input.get())
