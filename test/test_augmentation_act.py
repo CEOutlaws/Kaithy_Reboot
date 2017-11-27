@@ -2,6 +2,7 @@ import sys
 sys.path.append('..')
 
 import tensorflow as tf
+import numpy as np
 
 
 def rotate_action(board_size, pos_1D, k):
@@ -15,14 +16,14 @@ def rotate_action(board_size, pos_1D, k):
     """
     pos_2D = (pos_1D // board_size, pos_1D % board_size)
     # rot90
-    if (k == 1):
+    if (k % 4 == 1):
         rot_pos = pos_2D[0] + (board_size - 1 - pos_2D[1]) * board_size
     # rot180
-    if (k == 2):
+    if (k % 4 == 2):
         rot_pos = (board_size - 1 - pos_2D[0]) * \
             board_size + (board_size - 1 - pos_2D[1])
     # rot270
-    if (k == 3):
+    if (k % 4 == 3):
         rot_pos = (board_size - 1 - pos_2D[0]) + pos_2D[1] * board_size
     return rot_pos
 
@@ -39,25 +40,20 @@ def flip_action(board_size, pos_1D, k):
     """
     pos_2D = (pos_1D // board_size, pos_1D % board_size)
     # flip and rot 0
-    if (k == 0):
+    if (k % 4 == 0):
         flip_rot = pos_2D[0] * board_size + -pos_2D[1] + board_size - 1
     # flip and rot 90
-    if (k == 1):
+    if (k % 4 == 1):
         flip_rot = pos_2D[1] * board_size + pos_2D[0]
     # flip and rot 180
-    if (k == 2):
+    if (k % 4 == 2):
         flip_rot = (-pos_2D[0] + board_size - 1) * \
             board_size + pos_2D[1]
     # flip and rot 270
-    if (k == 3):
+    if (k % 4 == 3):
         flip_rot = (-pos_2D[1] + board_size - 1) * \
             board_size + -pos_2D[0] + board_size - 1
     return flip_rot
-
-
-import adversarial_gym as gym
-import numpy as np
-import copy
 
 
 def main():
@@ -93,6 +89,9 @@ def main():
     act_result = sess.run(act_t_aug, feed_dict={
                           act_t_ph: np.arange(board_size * board_size)})
     print(act_result)
+
+    assert np.array_equal(act_result, [0,  1,  2,  5,  0, 21, 18, 17, 16,
+                                       23,  2,  7, 12, 11, 10,  3,  8, 13,  8,  9,  0, 15, 10,  5,  0])
 
 
 if __name__ == "__main__":
