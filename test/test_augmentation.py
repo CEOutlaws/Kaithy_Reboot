@@ -153,7 +153,7 @@ def main():
                 pos_2D = (pos_1D // board_size , pos_1D % board_size)
                 # rot90
                 if (k==1):
-                    rot_pos = pos_2D[0]*board_size+(board_size-1 - pos_2D[1] ) 
+                    rot_pos = pos_2D[0]+(board_size-1 - pos_2D[1] ) *board_size
                 # rot180
                 if (k==2):
                     rot_pos = (board_size -1 - pos_2D[0] )*board_size + (board_size-1 -pos_2D[1])
@@ -207,8 +207,9 @@ def main():
 
             observation, reward, done, info = env.step(action)
             
-            angle = 0
+            angle = 1
             flip_action(observation.shape[0],action,angle)
+            print(action,rotate_action(observation.shape[0],action,angle))
             # exit(0)
             #  observation flip and rotate
             print(observation[:, :, 1],env.observation_space.shape[0:2])
@@ -216,7 +217,7 @@ def main():
             obs_temp_ph = tf.placeholder(dtype=tf.int32, shape=(env.observation_space.shape))
             k = tf.placeholder(tf.int32)
             # tf_img = tf.image.rot90(obs_temp_ph, k = k)
-            # tf_img1 = tf.image.flip_left_right(obs_temp_ph[0:3])
+            # tf_img1 = tf.image.flip_left_right(obs_temp_ph)
             tf_img = tf.image.rot90(obs_temp_ph, k = k)
             # tf_img = tf.image.flip_left_right(obs_temp_ph)
             rotated_img = sess.run(tf_img, feed_dict = {obs_temp_ph: observation, k:angle})

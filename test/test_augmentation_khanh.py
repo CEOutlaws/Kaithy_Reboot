@@ -16,7 +16,7 @@ def rotate_action(board_size, pos_1D, k):
     pos_2D = (pos_1D // board_size, pos_1D % board_size)
     # rot90
     if (k == 1):
-        rot_pos = pos_2D[0] * board_size + (board_size - 1 - pos_2D[1])
+        rot_pos = pos_2D[0]+(board_size-1 - pos_2D[1] ) *board_size
     # rot180
     if (k == 2):
         rot_pos = (board_size - 1 - pos_2D[0]) * \
