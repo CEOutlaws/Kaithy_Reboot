@@ -5,6 +5,14 @@ import tensorflow as tf
 
 
 def rotate_action(board_size, pos_1D, k):
+    """
+    Function rotate board
+        :param board_size: size of board 
+        :param pos_1D: position in board
+        :param k:   1: rotate 90
+                    2: rotate 180
+                    3: rotate 270
+    """
     pos_2D = (pos_1D // board_size, pos_1D % board_size)
     # rot90
     if (k == 1):
@@ -20,6 +28,15 @@ def rotate_action(board_size, pos_1D, k):
 
 
 def flip_action(board_size, pos_1D, k):
+    """
+    Flip board and rotate
+        :param board_size: size of board
+        :param pos_1D: position in board
+        :param k:   0: only flip
+                    1: flip and rotate 90
+                    2: flip and rotate 180
+                    3: flip and rotate 270
+    """
     pos_2D = (pos_1D // board_size, pos_1D % board_size)
     # flip and rot 0
     if (k == 0):
@@ -29,7 +46,8 @@ def flip_action(board_size, pos_1D, k):
         flip_rot = pos_2D[1] * board_size + pos_2D[0]
     # flip and rot 180
     if (k == 2):
-        flip_rot = (-pos_2D[0] + board_size - 1) * board_size + pos_2D[1]
+        flip_rot = (-pos_2D[0] + board_size - 1) * \
+            board_size + pos_2D[1]
     # flip and rot 270
     if (k == 3):
         flip_rot = (-pos_2D[1] + board_size - 1) * \
