@@ -5,7 +5,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def rotate_action(board_size, pos_1D, k):
+def rot90(board_size, pos_1D, k):
     """
     Function rotate board
         :param board_size: size of board 
@@ -28,7 +28,7 @@ def rotate_action(board_size, pos_1D, k):
     return rot_pos
 
 
-def flip_action(board_size, pos_1D, k):
+def flip_left_right_rot90(board_size, pos_1D, k):
     """
     Flip board and rotate
         :param board_size: size of board
@@ -63,19 +63,19 @@ def main():
     batch_size = tf.shape(act_t_ph)[0]
     act_t_aug = tf.concat((
         act_t_ph[0: batch_size // 8],
-        rotate_action(
+        rot90(
             board_size, act_t_ph[batch_size // 8: batch_size // 4], 1),
-        rotate_action(
+        rot90(
             board_size, act_t_ph[batch_size // 4: batch_size // 8 * 3], 2),
-        rotate_action(
+        rot90(
             board_size, act_t_ph[batch_size // 8 * 3: batch_size // 2], 3),
-        flip_action(
+        flip_left_right_rot90(
             board_size, act_t_ph[batch_size // 2: batch_size // 8 * 5], 0),
-        flip_action(
+        flip_left_right_rot90(
             board_size, act_t_ph[batch_size // 8 * 5: batch_size // 8 * 6], 1),
-        flip_action(
+        flip_left_right_rot90(
             board_size, act_t_ph[batch_size // 8 * 6: batch_size // 8 * 7], 2),
-        flip_action(
+        flip_left_right_rot90(
             board_size, act_t_ph[batch_size // 8 * 7: batch_size], 3),
     ), axis=0)
 
