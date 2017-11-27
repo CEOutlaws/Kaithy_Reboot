@@ -95,6 +95,7 @@ The functions in this file can are used to create the following functions:
 """
 import tensorflow as tf
 import baselines.common.tf_util as U
+import baselines.common.position as pos
 
 
 def build_q_filter(q_values, invalid_masks):
@@ -431,6 +432,27 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         done_mask_ph = tf.placeholder(U.data_type, [None], name="done")
         importance_weights_ph = tf.placeholder(
             U.data_type, [None], name="weight")
+
+        batch_size = tf.shape(act_t_ph)[0]
+        board_size = obs_t_input.get().shape[1]
+
+        act_t_ph = tf.concat((
+            act_t_ph[0: batch_size // 8],
+            pos.rot90(
+                board_size, act_t_ph[batch_size // 8: batch_size // 4], 1),
+            pos.rot90(
+                board_size, act_t_ph[batch_size // 4: batch_size // 8 * 3], 2),
+            pos.rot90(
+                board_size, act_t_ph[batch_size // 8 * 3: batch_size // 2], 3),
+            pos.flip_left_right_rot90(
+                board_size, act_t_ph[batch_size // 2: batch_size // 8 * 5], 0),
+            pos.flip_left_right_rot90(
+                board_size, act_t_ph[batch_size // 8 * 5: batch_size // 8 * 6], 1),
+            pos.flip_left_right_rot90(
+                board_size, act_t_ph[batch_size // 8 * 6: batch_size // 8 * 7], 2),
+            pos.flip_left_right_rot90(
+                board_size, act_t_ph[batch_size // 8 * 7: batch_size], 3),
+        ), axis=0)
 
         if deterministic_filter:
             invalid_masks_tp1 = build_invalid_masks(obs_tp1_input.get())
