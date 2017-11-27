@@ -435,31 +435,31 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
 
         board_size = obs_t_input.get().get_shape()[1]
 
-        obs_t_input = transform_obses(obs_t_input)
-        obs_tp1_input = transform_obses(obs_tp1_input)
-        act_t_ph = transform_actions(act_t_ph, board_size)
+        obs_t = transform_obses(obs_t_input.get())
+        obs_tp1 = transform_obses(obs_tp1_input.get())
+        act_t = transform_actions(act_t_ph, board_size)
 
         if deterministic_filter:
-            invalid_masks_tp1 = build_invalid_masks(obs_tp1_input.get())
+            invalid_masks_tp1 = build_invalid_masks(obs_tp1)
 
         # q network evaluation
-        q_t = q_func(obs_t_input.get(), num_actions, scope="q_func",
+        q_t = q_func(obs_t, num_actions, scope="q_func",
                      reuse=True)  # reuse parameters from act
         q_func_vars = U.scope_vars(U.absolute_scope_name("q_func"))
 
         # target q network evalution
-        q_tp1 = q_func(obs_tp1_input.get(), num_actions, scope="target_q_func")
+        q_tp1 = q_func(obs_tp1, num_actions, scope="target_q_func")
         target_q_func_vars = U.scope_vars(
             U.absolute_scope_name("target_q_func"))
 
         # q scores for actions which we know were selected in the given state.
         q_t_selected = tf.reduce_sum(
-            q_t * tf.one_hot(act_t_ph, num_actions, dtype=U.data_type), axis=1)
+            q_t * tf.one_hot(act_t, num_actions, dtype=U.data_type), axis=1)
 
         # compute estimate of best possible value starting from state at t + 1
         if double_q:
             q_tp1_using_online_net = q_func(
-                obs_tp1_input.get(), num_actions, scope="q_func", reuse=True)
+                obs_tp1, num_actions, scope="q_func", reuse=True)
 
             if deterministic_filter:
                 q_tp1_using_online_net = build_q_filter(

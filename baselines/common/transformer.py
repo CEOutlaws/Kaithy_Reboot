@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow import image
 
-import baselines.common.position as pos
+from . import position as pos
 
 
 def transform_actions(actions, board_size):
