@@ -16,7 +16,7 @@ def rotate_action(board_size, pos_1D, k):
     pos_2D = (pos_1D // board_size, pos_1D % board_size)
     # rot90
     if (k == 1):
-        rot_pos = pos_2D[0]+(board_size-1 - pos_2D[1] ) *board_size
+        rot_pos = pos_2D[0] + (board_size - 1 - pos_2D[1]) * board_size
     # rot180
     if (k == 2):
         rot_pos = (board_size - 1 - pos_2D[0]) * \
@@ -65,17 +65,33 @@ def main():
     # Build graph
     act_t_ph = tf.placeholder(tf.int32, [None], name="action")
     batch_size = tf.shape(act_t_ph)[0]
-    act_flip_rot = flip_action(board_size, act_t_ph, 1)
-    act_rot = tf.zeros_like(tf.int32, [batch_size], name="action_rot")
-    act_rot[0:batch_size] = rotate_action(board_size, act_t_ph, 1)
+    act_t_aug = tf.concat((
+        act_t_ph[0: batch_size // 8],
+        rotate_action(
+            board_size, act_t_ph[batch_size // 8: batch_size // 4], 1),
+        rotate_action(
+            board_size, act_t_ph[batch_size // 4: batch_size // 8 * 3], 2),
+        rotate_action(
+            board_size, act_t_ph[batch_size // 8 * 3: batch_size // 2], 3),
+        flip_action(
+            board_size, act_t_ph[batch_size // 2: batch_size // 8 * 5], 0),
+        flip_action(
+            board_size, act_t_ph[batch_size // 8 * 5: batch_size // 8 * 6], 1),
+        flip_action(
+            board_size, act_t_ph[batch_size // 8 * 6: batch_size // 8 * 7], 2),
+        flip_action(
+            board_size, act_t_ph[batch_size // 8 * 7: batch_size], 3),
+    ), axis=0)
 
     # Run graph
     sess = tf.Session()
-    act_result = sess.run(act_flip_rot, feed_dict={
-                          act_t_ph: [1, 2, 3, 4, 5, 6]})
+
+    act_result = sess.run(act_t_ph, feed_dict={
+                          act_t_ph: np.arange(board_size * board_size)})
     print(act_result)
 
-    act_result = sess.run(act_rot, feed_dict={act_t_ph: [1, 2, 3, 4, 5, 6]})
+    act_result = sess.run(act_t_aug, feed_dict={
+                          act_t_ph: np.arange(board_size * board_size)})
     print(act_result)
 
 
