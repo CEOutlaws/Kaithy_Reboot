@@ -23,13 +23,13 @@ def rot90(board_size, pos_1d, k):
 
 def flip_left_right_rot90(board_size, pos_1d, k):
     """
-    Flip board and rotate
+    Flip left right then rotate
         :param board_size: size of board
         :param pos_1D: position in board
         :param k:   0: only flip
-                    1: flip and rotate 90
-                    2: flip and rotate 180
-                    3: flip and rotate 270
+                    1: flip then rotate 90
+                    2: flip then rotate 180
+                    3: flip then rotate 270
     """
     pos_2d = (pos_1d // board_size, pos_1d % board_size)
     # flip and rot 0
