@@ -434,7 +434,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
             U.data_type, [None], name="weight")
 
         batch_size = tf.shape(act_t_ph)[0]
-        board_size = obs_t_input.get().shape[1]
+        board_size = obs_t_input.get().get_shape()[1]
 
         act_t_ph = tf.concat((
             act_t_ph[0: batch_size // 8],
