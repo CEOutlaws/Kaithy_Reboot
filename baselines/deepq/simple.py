@@ -215,11 +215,11 @@ def learn(env,
     def make_obs_ph(name):
         obs_shape = env.observation_space.shape
 
-        if flatten_obs:
-            flattened_env_shape = 1
-            for dim_size in env.observation_space.shape:
-                flattened_env_shape *= dim_size
-            obs_shape = (flattened_env_shape,)
+        # if flatten_obs:
+        #     flattened_env_shape = 1
+        #     for dim_size in env.observation_space.shape:
+        #         flattened_env_shape *= dim_size
+        #     obs_shape = (flattened_env_shape,)
 
         return U.BatchInput(obs_shape, name=name)
 
