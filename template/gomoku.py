@@ -55,7 +55,7 @@ def train(board_size, max_timesteps):
         # learning_starts=32,
         target_network_update_freq=1000,
         gamma=0.99,
-        prioritized_replay=True,
+        prioritized_replay=False,
         deterministic_filter=True,
         random_filter=True,
         state_file='kaithy_cnn_to_mlp_{}_model.pkl'.format(board_size),
