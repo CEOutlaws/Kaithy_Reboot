@@ -44,7 +44,7 @@ def train(board_size, max_timesteps):
         max_timesteps=max_timesteps,
         lr=1e-4,
         buffer_size=100000,
-        batch_size=64,
+        batch_size=512,
         exploration_fraction=0.95,
         # exploration_fraction=0.001,
         exploration_final_eps=0.35,

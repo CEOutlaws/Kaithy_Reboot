@@ -208,7 +208,7 @@ def learn(env,
         See header of baselines/deepq/categorical.py for details on the act function.
     """
     # Name file
-    name_result = hp.get_name_result()
+    name_result = hp.get_name_result(env.observation_space.shape[0])
     # Create all the functions necessary to train the model
 
     sess = U.make_session(num_cpu=num_cpu)
@@ -298,7 +298,7 @@ def learn(env,
     start_time = time.time()
     start_clock = time.clock()
     total_error = None
-    
+
     with tempfile.TemporaryDirectory() as td:
         model_saved = False
         model_file = os.path.join(td, "model")
@@ -412,11 +412,11 @@ def learn(env,
                     start_time = time.time()
                     start_clock = time.clock()
 
-                    # Print log to csv file 
+                    # Print log to csv file
                     values = []
-                    values.extend([num_episodes,time.time() - start_time,num_win,num_lose,num_draw])
-                    hp.write_data(values,name_result)
-
+                    values.extend([num_episodes, time.time() -
+                                   start_time, num_win, num_lose, num_draw])
+                    hp.write_data(values, name_result)
 
                 if (num_win >= saved_num_win):
                     logger.log("Saving model due to num win increase or same as before: {} -> {}".format(
