@@ -7,7 +7,7 @@ import zipfile
 import time
 import copy
 import sys
-
+import baselines.common.helper as hp
 import baselines.common.tf_util as U
 
 from baselines import logger
@@ -207,6 +207,8 @@ def learn(env,
         Wrapper over act function. Adds ability to save it and load it.
         See header of baselines/deepq/categorical.py for details on the act function.
     """
+    # Name file
+    name_result = hp.get_name_result()
     # Create all the functions necessary to train the model
 
     sess = U.make_session(num_cpu=num_cpu)
@@ -296,7 +298,7 @@ def learn(env,
     start_time = time.time()
     start_clock = time.clock()
     total_error = None
-
+    
     with tempfile.TemporaryDirectory() as td:
         model_saved = False
         model_file = os.path.join(td, "model")
@@ -332,6 +334,7 @@ def learn(env,
             # Store transition in the replay buffer.
 
             episode_rewards[-1] += rew
+
             if done:
                 # Player is black
                 new_obs[:, :, 0] = 0
@@ -408,6 +411,12 @@ def learn(env,
                     logger.dump_tabular()
                     start_time = time.time()
                     start_clock = time.clock()
+
+                    # Print log to csv file 
+                    values = []
+                    values.extend([num_episodes,time.time() - start_time,num_win,num_lose,num_draw])
+                    hp.write_data(values,name_result)
+
 
                 if (num_win >= saved_num_win):
                     logger.log("Saving model due to num win increase or same as before: {} -> {}".format(

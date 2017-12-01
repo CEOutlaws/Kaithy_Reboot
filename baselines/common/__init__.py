@@ -4,3 +4,4 @@ from baselines.common.math_util import *
 from baselines.common.misc_util import *
 from baselines.common.position import *
 from baselines.common.transformer import *
+from baselines.common.helper import *
