@@ -2,14 +2,7 @@ import csv
 import datetime
 import os
 # write file supporter
-def get_name_result():
-    return str(os.getcwd()).replace('experiments','result/') + 'result' +'_'+ str(datetime.datetime.now()) +'.csv'
-    # def __init__(self):
-    #     self._name = 'result' +'_'+ str(datetime.datetime.now()) +'.csv'
 
-    # @property
-    # def name(self):
-    #     return self._name
         
         
 
@@ -21,7 +14,12 @@ def write_data(values, file_name ):
         writer = csv.DictWriter(myFile, fieldnames=myField)
         writer.writerow(data)
     myFile.close()
-
+def get_name_result():
+    name = str(os.getcwd()).replace('experiments','result/') + 'result' +'_'+ str(datetime.datetime.now()) +'.csv'
+    data= []
+    data.extend(['Episodes', 'Execution time', 'Win', 'Lost', 'Draw'])
+    write_data(data,name)
+    return name
 def main():
     print("hello")
     write_data(["1","haha"],'a.csv')
