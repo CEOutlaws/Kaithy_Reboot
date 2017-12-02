@@ -48,7 +48,7 @@ def train(board_size, max_timesteps):
         exploration_fraction=0.95,
         # exploration_fraction=0.001,
         exploration_final_eps=0.35,
-        train_freq=2,
+        train_freq=4,
         val_freq=1000,
         print_freq=100,
         learning_starts=10000,
