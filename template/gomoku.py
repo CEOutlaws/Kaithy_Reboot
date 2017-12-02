@@ -39,7 +39,7 @@ def train(board_size, max_timesteps):
 
     model = deepq.models.cnn_to_mlp(
         convs=conv_layers,
-        hiddens=hidden_layers
+        hiddens=hidden_layers,
     )
 
     act = deepq.learn(
@@ -51,13 +51,11 @@ def train(board_size, max_timesteps):
         buffer_size=400000,
         batch_size=512,
         exploration_fraction=0.95,
-        # exploration_fraction=0.001,
         exploration_final_eps=0.35,
         train_freq=4,
         val_freq=1000,
         print_freq=100,
         learning_starts=10000,
-        # learning_starts=32,
         target_network_update_freq=1000,
         gamma=0.99,
         prioritized_replay=False,
