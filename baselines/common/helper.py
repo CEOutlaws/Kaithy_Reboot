@@ -15,8 +15,8 @@ def write_data(values, file_name):
         writer = csv.DictWriter(myFile, fieldnames=myField)
         writer.writerow(data)
     myFile.close()
-def get_name_result():
-    name = str(os.getcwd()).replace('experiments','result/') + 'result' +'_'+ str(datetime.datetime.now()) +'.csv'
+def get_name_result(board_size):
+    name = str(os.getcwd()).replace('experiments','result/') + 'result'+'_'+ str(board_size)+'_'+ str(datetime.datetime.now()) +'.csv'
     data= []
     data.extend(['Episodes', 'Execution time', 'Win', 'Lost', 'Draw'])
     write_data(data,name)
