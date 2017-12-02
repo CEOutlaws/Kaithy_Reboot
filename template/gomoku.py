@@ -33,9 +33,12 @@ def train(board_size, max_timesteps):
 
     # Enabling layer_norm here is import for parameter space noise!
     model = deepq.models.cnn_to_mlp(
-        convs=[(256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1),
-               (256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1)],
-        hiddens=[256]
+        # convs=[(256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1),
+            #    (256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1)],
+        # hiddens=[256]
+        convs=[(64, 3, 1), (64, 3, 1), (64, 3, 1), (64, 3, 1),
+               (64, 3, 1), (64, 3, 1), (64, 3, 1), (64, 3, 1)],
+        hiddens=[64]
     )
     act = deepq.learn(
         env=env,
@@ -44,7 +47,7 @@ def train(board_size, max_timesteps):
         max_timesteps=max_timesteps,
         lr=1e-4,
         buffer_size=400000,
-        batch_size=256,
+        batch_size=512,
         exploration_fraction=0.95,
         # exploration_fraction=0.001,
         exploration_final_eps=0.35,
