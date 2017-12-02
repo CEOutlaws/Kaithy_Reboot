@@ -486,8 +486,10 @@ def build_train(make_obs_ph, q_func, num_actions, grad_norm_clipping=None, gamma
                                 for var in q_func_vars]) * 0.0001
         total_error = weighted_error + regularizer
 
-        optimizer = tf.train.MomentumOptimizer(
-            learning_rate=lr_ph, momentum=0.9)
+        # optimizer = tf.train.MomentumOptimizer(
+        #     learning_rate=lr_ph, momentum=0.9)
+        optimizer = tf.train.AdamOptimizer(
+            learning_rate=lr_ph)
 
         # compute optimization op (potentially with gradient clipping)
         if grad_norm_clipping is not None:
