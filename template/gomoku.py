@@ -32,11 +32,16 @@ def train(board_size, max_timesteps):
         'Gomoku{}x{}-arena-v0'.format(board_size, board_size), __val_opponent_policy)
 
     # Enabling layer_norm here is import for parameter space noise!
+    capility = 128
+    num_conv_layer = 8
+    conv_layers = [(capility, 3, 1)] * num_conv_layer
+    hidden_layers = [capility]
+
     model = deepq.models.cnn_to_mlp(
-        convs=[(256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1),
-               (256, 3, 1), (256, 3, 1), (256, 3, 1), (256, 3, 1)],
-        hiddens=[256]
+        convs=conv_layers,
+        hiddens=hidden_layers
     )
+
     act = deepq.learn(
         env=env,
         val_env=val_env,
@@ -60,6 +65,7 @@ def train(board_size, max_timesteps):
         random_filter=True,
         state_file='kaithy_cnn_to_mlp_{}_model.pkl'.format(board_size),
     )
+
     print('Saving model to kaithy_cnn_to_mlp_{}_model.pkl'.format(
         board_size))
     act.save('kaithy_cnn_to_mlp_{}_model.pkl'.format(board_size))
