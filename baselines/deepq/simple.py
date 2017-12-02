@@ -375,8 +375,15 @@ def learn(env,
                         batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
 
-                td_errors, base_error, total_error = train(get_learning_rate(t), obses_t, actions,
-                                                           rewards, obses_tp1, dones, weights)
+                td_errors, base_error, total_error = train(
+                    lr=get_learning_rate(t),
+                    obs_t=obses_t,
+                    action=actions,
+                    reward=rewards,
+                    obs_tp1=obses_tp1,
+                    done=dones,
+                    weight=weights)
+
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
                     replay_buffer.update_priorities(
