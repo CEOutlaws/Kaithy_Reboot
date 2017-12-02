@@ -27,12 +27,12 @@ def train(board_size, max_timesteps):
     None
     """
     env = gym.make(
-        'Gomoku{}x{}-training-camp-v0'.format(board_size, board_size))
+        'Gomoku{}x{}-arena-v0'.format(board_size, board_size))
     val_env = gym.make(
         'Gomoku{}x{}-arena-v0'.format(board_size, board_size), __val_opponent_policy)
 
     # Enabling layer_norm here is import for parameter space noise!
-    capility = 128
+    capility = 64
     num_conv_layer = 8
     conv_layers = [(capility, 3, 1)] * num_conv_layer
     hidden_layers = [capility]
@@ -49,7 +49,7 @@ def train(board_size, max_timesteps):
         max_timesteps=max_timesteps,
         lr=1e-4,
         buffer_size=400000,
-        batch_size=256,
+        batch_size=512,
         exploration_fraction=0.95,
         # exploration_fraction=0.001,
         exploration_final_eps=0.35,
