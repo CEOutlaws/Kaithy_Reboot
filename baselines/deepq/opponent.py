@@ -13,7 +13,7 @@ class Opponent(object):
 
         if self.old_obs is not None:
             self.__replay_buffer.add(self.old_obs, self.old_action,
-                                     0, self.__obs, 0)
+                                     0.0, self.__obs, 0.0)
         # Get opponent action
         # if self.__flatten_obs:
         #     self.__obs = self.__obs.flatten()
