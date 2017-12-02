@@ -293,12 +293,20 @@ class GomokuEnv(gym.Env):
         exist, win_color = gomoku_util.check_five_in_row(
             self.state.board.board_state)  # 'empty', 'black', 'white'
         reward = 0.
+
+        # if win_color == "empty":  # draw
+        #     reward = 0.
+        # else:
+        #     # check if player_color is the win_color
+        #     player_wins = (self.player_color == win_color)
+        #     reward = 1. if player_wins else -1.
         if win_color == "empty":  # draw
-            reward = 0.
-        else:
-            # check if player_color is the win_color
-            player_wins = (self.player_color == win_color)
-            reward = 1. if player_wins else -1.
+            win_color = 'white'
+
+        # check if player_color is the win_color
+        player_wins = (self.player_color == win_color)
+        reward = 1. if player_wins else -1.
+
         return self.state.encode(), reward, True, {'state': self.state}
 
     def _exec_opponent_play(self, curr_state, prev_state, prev_action):

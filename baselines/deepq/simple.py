@@ -81,6 +81,15 @@ def load(path, num_cpu=16):
     return ActWrapper.load(path, num_cpu=num_cpu)
 
 
+def get_learning_rate(time_step):
+    if time_step < 400000:
+        return 1e-2
+    elif time_step < 600000:
+        return 1e-3
+    else:
+        return 1e-4
+
+
 def validate(env, act, kwargs):
     num_episodes = 200
     win_count = 0
@@ -126,7 +135,7 @@ def learn(env,
           prioritized_replay_beta0=0.4,
           prioritized_replay_beta_iters=None,
           prioritized_replay_eps=1e-6,
-          num_cpu=16,
+          num_cpu=None,
           param_noise=False,
           callback=None,
           deterministic_filter=False,
@@ -208,7 +217,7 @@ def learn(env,
         See header of baselines/deepq/categorical.py for details on the act function.
     """
     # Name file
-    name_result = hp.get_name_result()
+    name_result = hp.get_name_result(env.observation_space.shape[0])
     # Create all the functions necessary to train the model
 
     sess = U.make_session(num_cpu=num_cpu)
@@ -229,7 +238,7 @@ def learn(env,
         make_obs_ph=make_obs_ph,
         q_func=q_func,
         num_actions=env.action_space.n,
-        optimizer=tf.train.AdamOptimizer(learning_rate=lr),
+        # optimizer=tf.train.AdamOptimizer(learning_rate=lr),
         gamma=gamma,
         grad_norm_clipping=10,
         double_q=double_q,
@@ -298,7 +307,7 @@ def learn(env,
     start_time = time.time()
     start_clock = time.clock()
     total_error = None
-    
+
     with tempfile.TemporaryDirectory() as td:
         model_saved = False
         model_file = os.path.join(td, "model")
@@ -365,8 +374,9 @@ def learn(env,
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(
                         batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
-                td_errors, base_error, total_error = train(obses_t, actions, rewards,
-                                                           obses_tp1, dones, weights)
+
+                td_errors, base_error, total_error = train(get_learning_rate(t), obses_t, actions,
+                                                           rewards, obses_tp1, dones, weights)
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
                     replay_buffer.update_priorities(
@@ -412,11 +422,11 @@ def learn(env,
                     start_time = time.time()
                     start_clock = time.clock()
 
-                    # Print log to csv file 
+                    # Print log to csv file
                     values = []
-                    values.extend([num_episodes,time.time() - start_time,num_win,num_lose,num_draw])
-                    hp.write_data(values,name_result)
-
+                    values.extend([num_episodes, time.time() -
+                                   start_time, num_win, num_lose, num_draw])
+                    hp.write_data(values, name_result)
 
                 if (num_win >= saved_num_win):
                     logger.log("Saving model due to num win increase or same as before: {} -> {}".format(

@@ -4,4 +4,4 @@ actTensor.sh
 dqn/*
 *.pkl
 *_output.txt*
-result/*
+*.csv

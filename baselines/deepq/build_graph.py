@@ -361,7 +361,7 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
         return act
 
 
-def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=None, gamma=1.0, deterministic_filter=False, random_filter=False,
+def build_train(make_obs_ph, q_func, num_actions, grad_norm_clipping=None, gamma=1.0, deterministic_filter=False, random_filter=False,
                 double_q=True, scope="deepq", reuse=None, param_noise=False, param_noise_filter_func=None):
     """Creates the train function:
 
@@ -383,8 +383,6 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         number of actions
     reuse: bool
         whether or not to reuse the graph variables
-    optimizer: tf.train.Optimizer
-        optimizer to use for the Q-learning objective.
     grad_norm_clipping: float or None
         clip gradient norms to this value. If None no clipping is performed.
     gamma: float
@@ -425,6 +423,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
 
     with tf.variable_scope(scope, reuse=reuse):
         # set up placeholders
+        lr_ph = tf.placeholder(tf.float32, name="lr")
         obs_t_input = U.ensure_tf_input(make_obs_ph("obs_t"))
         act_t_ph = tf.placeholder(tf.int32, [None], name="action")
         rew_t_ph = tf.placeholder(U.data_type, [None], name="reward")
@@ -487,6 +486,9 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
                                 for var in q_func_vars]) * 0.0001
         total_error = weighted_error + regularizer
 
+        optimizer = tf.train.MomentumOptimizer(
+            learning_rate=lr_ph, momentum=0.9)
+
         # compute optimization op (potentially with gradient clipping)
         if grad_norm_clipping is not None:
             optimize_expr = U.minimize_and_clip(optimizer,
@@ -507,6 +509,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         # Create callable functions
         train = U.function(
             inputs=[
+                lr_ph,
                 obs_t_input,
                 act_t_ph,
                 rew_t_ph,
