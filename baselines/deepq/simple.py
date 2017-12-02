@@ -81,6 +81,15 @@ def load(path, num_cpu=16):
     return ActWrapper.load(path, num_cpu=num_cpu)
 
 
+def get_learning_rate(time_step):
+    if time_step < 400000:
+        return 1e-2
+    elif time_step < 600000:
+        return 1e-3
+    else:
+        return 1e-4
+
+
 def validate(env, act, kwargs):
     num_episodes = 200
     win_count = 0
@@ -230,7 +239,6 @@ def learn(env,
         q_func=q_func,
         num_actions=env.action_space.n,
         # optimizer=tf.train.AdamOptimizer(learning_rate=lr),
-        optimizer=tf.train.MomentumOptimizer(learning_rate=lr, momentum=0.9),
         gamma=gamma,
         grad_norm_clipping=10,
         double_q=double_q,
@@ -366,8 +374,9 @@ def learn(env,
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(
                         batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
-                td_errors, base_error, total_error = train(obses_t, actions, rewards,
-                                                           obses_tp1, dones, weights)
+
+                td_errors, base_error, total_error = train(get_learning_rate(t), obses_t, actions,
+                                                           rewards, obses_tp1, dones, weights)
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
                     replay_buffer.update_priorities(
