@@ -42,8 +42,7 @@ def train(board_size, max_timesteps):
         hiddens=hidden_layers,
     )
 
-    exploration_fraction = 0.95
-    exploration_fraction = exploration_fraction / (max_timesteps / 1000000)
+    timesteps_to_explore = 800000
 
     act = deepq.learn(
         env=env,
@@ -53,7 +52,7 @@ def train(board_size, max_timesteps):
         lr=1e-4,
         buffer_size=400000,
         batch_size=512,
-        exploration_fraction=exploration_fraction,
+        exploration_fraction=(timesteps_to_explore / max_timesteps),
         exploration_final_eps=0.35,
         train_freq=4,
         val_freq=1000,
