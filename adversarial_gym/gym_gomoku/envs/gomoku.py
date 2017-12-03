@@ -154,7 +154,7 @@ class GomokuEnv(gym.Env):
                 self.action_space = DiscreteWrapper2d(self.board_size)
 
                 num_black_actions = random.randint(
-                    0, (len(self.action_list) - 1) // 6)
+                    0, (len(self.action_list) - 1) // self.board_size)
 
                 black_actions = random.sample(
                     self.action_list, num_black_actions)
