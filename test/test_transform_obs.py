@@ -2,8 +2,42 @@ import sys
 sys.path.append('..')
 
 import tensorflow as tf
-from tensorflow import image
 import numpy as np
+
+
+from tensorflow.python.framework import ops
+
+from tensorflow.python.ops import array_ops
+
+
+def rot90(image, k=1, name=None):
+    """
+    tf.image.rot90 (Khanh Remix)
+    Rotate an image counter-clockwise by 90 degrees.
+
+    Args:
+      image: A 3-D tensor of shape `[height, width, channels]`.
+      k: A scalar integer. The number of times the image is rotated by 90 degrees.
+      name: A name for this operation (optional).
+
+    Returns:
+      A rotated 3-D tensor of the same type and shape as `image`.
+    """
+    with ops.name_scope(name, 'rot90', [image, k]) as scope:
+        k = k % 4
+
+        if k == 1:
+            ret = array_ops.transpose(array_ops.reverse_v2(image, [1]),
+                                      [1, 0, 2], name=scope)
+        elif k == 2:
+            ret = array_ops.reverse_v2(image, [0, 1], name=scope)
+
+        elif k == 3:
+            ret = array_ops.reverse_v2(array_ops.transpose(image, [1, 0, 2]),
+                                       [1], name=scope)
+
+        ret.set_shape([None, None, image.get_shape()[2]])
+        return ret
 
 
 def main():
@@ -12,19 +46,19 @@ def main():
     batch_size = tf.shape(obs_t_input)[0]
     obs_t_aug = tf.concat((
         obs_t_input[0: batch_size // 8],
-        tf.map_fn(lambda obs: image.rot90(obs, 1),
+        tf.map_fn(lambda obs: rot90(obs, 1),
                   obs_t_input[batch_size // 8: batch_size // 4]),
-        tf.map_fn(lambda obs: image.rot90(obs, 2),
+        tf.map_fn(lambda obs: rot90(obs, 2),
                   obs_t_input[batch_size // 4: batch_size // 8 * 3]),
-        tf.map_fn(lambda obs: image.rot90(obs, 3),
+        tf.map_fn(lambda obs: rot90(obs, 3),
                   obs_t_input[batch_size // 8 * 3: batch_size // 2]),
-        tf.map_fn(lambda obs: image.flip_left_right(obs),
+        tf.map_fn(lambda obs: tf.image.flip_left_right(obs),
                   obs_t_input[batch_size // 2: batch_size // 8 * 5]),
-        tf.map_fn(lambda obs: image.rot90(image.flip_left_right(obs), 1),
+        tf.map_fn(lambda obs: rot90(tf.image.flip_left_right(obs), 1),
                   obs_t_input[batch_size // 8 * 5: batch_size // 8 * 6]),
-        tf.map_fn(lambda obs: image.rot90(image.flip_left_right(obs), 2),
+        tf.map_fn(lambda obs: rot90(tf.image.flip_left_right(obs), 2),
                   obs_t_input[batch_size // 8 * 6: batch_size // 8 * 7]),
-        tf.map_fn(lambda obs: image.rot90(image.flip_left_right(obs), 3),
+        tf.map_fn(lambda obs: rot90(tf.image.flip_left_right(obs), 3),
                   obs_t_input[batch_size // 8 * 7: batch_size]),
     ), axis=0)
 

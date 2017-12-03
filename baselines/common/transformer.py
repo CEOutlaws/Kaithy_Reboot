@@ -1,7 +1,7 @@
 import tensorflow as tf
-from tensorflow import image
 
 from . import position as pos
+from . import image
 
 
 def transform_actions(actions, board_size):
@@ -36,12 +36,12 @@ def transform_obses(obses):
                   obses[batch_size // 4: batch_size // 8 * 3]),
         tf.map_fn(lambda obs: image.rot90(obs, 3),
                   obses[batch_size // 8 * 3: batch_size // 2]),
-        tf.map_fn(lambda obs: image.flip_left_right(obs),
+        tf.map_fn(lambda obs: tf.image.flip_left_right(obs),
                   obses[batch_size // 2: batch_size // 8 * 5]),
-        tf.map_fn(lambda obs: image.rot90(image.flip_left_right(obs), 1),
+        tf.map_fn(lambda obs: image.rot90(tf.image.flip_left_right(obs), 1),
                   obses[batch_size // 8 * 5: batch_size // 8 * 6]),
-        tf.map_fn(lambda obs: image.rot90(image.flip_left_right(obs), 2),
+        tf.map_fn(lambda obs: image.rot90(tf.image.flip_left_right(obs), 2),
                   obses[batch_size // 8 * 6: batch_size // 8 * 7]),
-        tf.map_fn(lambda obs: image.rot90(image.flip_left_right(obs), 3),
+        tf.map_fn(lambda obs: image.rot90(tf.image.flip_left_right(obs), 3),
                   obses[batch_size // 8 * 7: batch_size]),
     ), axis=0)
